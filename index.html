@@ -5,160 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="VULT investor LP calculator for estimating pro-rata Uniswap V3 position value and fee share."
+      content="Premium VULT investor LP calculator for estimating pro-rata Uniswap V3 position value and generated fee share."
     />
-    <title>VULT LP Calculator</title>
+    <meta name="theme-color" content="#0a1428" />
+    <title>VULT · LP Position Calculator</title>
     <link rel="icon" href="./assets/vultisig-logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="page-shell">
-      <header class="site-header" aria-label="VULT LP calculator header">
+    <div class="ambient-glow" aria-hidden="true">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+    </div>
+
+    <div class="page">
+      <header class="header" aria-label="VULT LP calculator header">
         <a class="brand" href="https://vultisig.com" target="_blank" rel="noreferrer">
-          <img src="./assets/vultisig-logo.svg" alt="Vultisig logo" />
+          <img src="./assets/vultisig-logo.svg" alt="Vultisig logo" width="32" height="33" />
           <span>Vultisig</span>
         </a>
-        <nav class="header-actions" aria-label="Calculator links">
+
+        <nav class="header-meta" aria-label="On-chain references">
           <a
-            class="address-chip"
+            class="chip"
             href="https://etherscan.io/token/0xb788144DF611029C60b859DF47e79B7726C4DEBa"
             target="_blank"
             rel="noreferrer"
-            aria-label="Open VULT contract address on Etherscan"
           >
-            <span>CA</span>
-            <strong>0xb788...DEBa</strong>
+            <span class="chip-label">Contract</span>
+            <span class="chip-value">0xb788...DEBa</span>
+            <svg class="chip-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </a>
           <a
-            class="address-chip"
+            class="chip"
             href="https://etherscan.io/address/0xa38682a0c4225132de450bb0f8ec545a0ade967d"
             target="_blank"
             rel="noreferrer"
-            aria-label="Open LP wallet on Etherscan"
           >
-            <span>LP wallet</span>
-            <strong>0xa386...967d</strong>
+            <span class="chip-label">LP wallet</span>
+            <span class="chip-value">0xa386...967d</span>
+            <svg class="chip-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </a>
         </nav>
       </header>
 
       <main>
-        <section class="intro-bar" aria-labelledby="page-title">
-          <div class="title-stack">
-            <span>$VULT investor liquidity</span>
-            <h1 id="page-title">LP Position Calculator</h1>
+        <section class="hero" aria-labelledby="pageTitle">
+          <div class="hero-text">
+            <span class="eyebrow">$VULT · investor liquidity</span>
+            <h1 id="pageTitle">LP Position <span>Calculator</span></h1>
+            <p>
+              Estimate your pro-rata investor LP position, generated fees, and position multiple from any
+              investment amount.
+            </p>
           </div>
-          <div class="signal-strip" aria-label="Model assumptions">
-            <div>
+
+          <div class="hero-stats" aria-label="Model assumptions">
+            <div class="stat">
               <span>Investor LP</span>
               <strong>24.0M VULT</strong>
             </div>
-            <div>
+            <div class="stat">
               <span>Treasury excluded</span>
               <strong>7.5M VULT</strong>
             </div>
-            <div>
+            <div class="stat">
               <span>Verified block</span>
-              <strong>25063863</strong>
+              <strong>25,063,863</strong>
             </div>
           </div>
         </section>
 
-        <section class="calculator-surface" aria-label="VULT LP calculator">
-          <form class="input-panel" id="calculator" aria-label="Calculator inputs">
-            <div class="panel-header">
+        <section class="core" aria-label="VULT LP calculator">
+          <form id="calculator" class="card inputs" autocomplete="off" aria-label="Position inputs">
+            <header class="card-head">
               <div>
                 <span class="eyebrow">Inputs</span>
                 <h2>Position setup</h2>
               </div>
-              <button class="reset-button" id="resetButton" type="button">Reset</button>
-            </div>
+              <button type="button" id="resetButton" class="btn-ghost">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" width="14" height="14">
+                  <path d="M2 8a6 6 0 1 0 1.76-4.24M2 3v3.5h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Reset
+              </button>
+            </header>
 
-            <div class="field-grid">
+            <div class="fields">
               <label class="field">
-                <span>Investment amount</span>
+                <span class="field-label">Investment amount</span>
                 <span class="input-wrap">
-                  <span>$</span>
+                  <span class="input-prefix">$</span>
                   <input id="investmentAmount" type="number" min="0" step="100" value="10000" inputmode="decimal" />
                 </span>
               </label>
 
               <label class="field">
-                <span>Entry valuation</span>
+                <span class="field-label">VULT entry price</span>
                 <span class="input-wrap">
-                  <span>$</span>
+                  <span class="input-prefix">$</span>
                   <input id="entryPrice" type="number" min="0.000001" step="0.01" value="0.10" inputmode="decimal" />
                 </span>
               </label>
 
-              <label class="field wide-field">
-                <span>Custom VULT price</span>
-                <span class="input-wrap">
-                  <span>$</span>
-                  <input id="customPrice" type="number" min="0.000001" step="0.01" value="0.185916877469" inputmode="decimal" />
+              <label class="field field-wide">
+                <span class="field-label">Selected VULT price</span>
+                <span class="input-wrap input-hero">
+                  <span class="input-prefix">$</span>
+                  <input id="customPrice" type="number" min="0.000001" step="0.001" value="0.185916877469" inputmode="decimal" />
                 </span>
               </label>
             </div>
 
-            <div class="price-shortcuts" aria-label="Quick price scenarios">
-              <button type="button" data-price="0.20">$0.20</button>
-              <button type="button" data-price="0.30">$0.30</button>
-              <button type="button" data-price="0.50">$0.50</button>
-              <button type="button" data-price="1.00">$1.00</button>
+            <div class="presets" aria-label="Price controls">
+              <span class="presets-label">Price scenarios</span>
+              <div class="presets-row" role="group" aria-label="Quick price scenarios">
+                <button type="button" class="preset" data-price="0.20">$0.20</button>
+                <button type="button" class="preset" data-price="0.30">$0.30</button>
+                <button type="button" class="preset" data-price="0.50">$0.50</button>
+                <button type="button" class="preset" data-price="1.00">$1.00</button>
+                <button type="button" class="preset preset-live" id="actualPriceButton">
+                  <span>Actual price</span>
+                </button>
+              </div>
+              <small id="actualPriceStatus" class="price-status">
+                Actual price uses the highest-liquidity Ethereum VULT pair from DEX Screener.
+              </small>
             </div>
           </form>
 
-          <aside class="output-panel" aria-label="Current position summary">
-            <div class="panel-header output-header">
+          <aside class="card output" aria-label="Live position summary">
+            <header class="card-head">
               <div>
                 <span class="eyebrow">Live output</span>
-                <h2>Custom price summary</h2>
+                <h2>Position summary</h2>
               </div>
-              <div class="price-badge">
-                <span>Price</span>
+              <div class="price-pill">
+                <span>VULT</span>
                 <strong id="activePrice">$0.00</strong>
               </div>
-            </div>
+            </header>
 
-            <div class="total-block">
-              <span>Total value</span>
+            <div class="hero-total">
+              <span>Total position value</span>
               <strong id="currentTotal">$0.00</strong>
-              <small id="currentMultiple">0.00x investment multiple</small>
+              <div class="hero-total-meta">
+                <span id="currentMultiple" class="multi-pill">0.00x multiple</span>
+                <span id="pnlPill" class="pnl-pill">+$0.00</span>
+              </div>
             </div>
 
-            <div class="metric-table" aria-label="Current position breakdown">
-              <div>
-                <span>LP value</span>
+            <div class="metrics">
+              <div class="metric">
+                <span class="metric-label"><span class="dot dot-teal"></span>LP value</span>
                 <strong id="currentLpValue">$0.00</strong>
-                <small id="lpBreakdown">0 USDC + 0 VULT</small>
+                <small id="lpBreakdown">0 USDC · 0 VULT</small>
               </div>
-              <div>
-                <span>Generated fees</span>
+              <div class="metric">
+                <span class="metric-label"><span class="dot dot-gold"></span>Generated fees</span>
                 <strong id="feeValue">$0.00</strong>
-                <small id="feeSplit">0 USDC + 0 VULT</small>
+                <small id="feeSplit">0 USDC · 0 VULT</small>
               </div>
-              <div>
-                <span>Allocation</span>
+              <div class="metric metric-wide">
+                <span class="metric-label"><span class="dot dot-blue"></span>Your allocation</span>
                 <strong id="allocation">0 VULT</strong>
                 <small id="share">0.000000% of investor LP</small>
+              </div>
+            </div>
+
+            <div class="composition">
+              <div class="composition-head">
+                <span>LP composition at selected price</span>
+                <span id="compositionRatio">0% USDC · 0% VULT</span>
+              </div>
+              <div class="composition-bar" aria-hidden="true">
+                <div id="barUsdc" class="bar-segment bar-usdc" style="width: 50%"></div>
+                <div id="barVult" class="bar-segment bar-vult" style="width: 50%"></div>
+              </div>
+              <div class="composition-legend">
+                <span><span class="dot dot-teal"></span>USDC</span>
+                <span><span class="dot dot-blue"></span>VULT</span>
               </div>
             </div>
           </aside>
         </section>
 
-        <section class="table-section" aria-labelledby="results-title">
-          <div class="section-heading">
+        <section class="block" aria-labelledby="scenariosTitle">
+          <header class="block-head">
             <div>
               <span class="eyebrow">Scenarios</span>
-              <h2 id="results-title">LP value and fee split</h2>
+              <h2 id="scenariosTitle">LP value and fee split</h2>
             </div>
-          </div>
+            <span class="hint">The custom row follows the selected VULT price input.</span>
+          </header>
 
           <div class="table-card">
-            <table>
+            <table class="data-table">
               <thead>
                 <tr>
-                  <th>VULT Price</th>
+                  <th>VULT price</th>
                   <th>LP assets</th>
                   <th>LP value</th>
                   <th>Fee assets</th>
@@ -171,55 +226,46 @@
           </div>
         </section>
 
-        <section class="details-grid" aria-label="Methodology">
-          <article>
-            <div class="section-heading compact-heading">
+        <section class="dual" aria-label="Liquidity details">
+          <article class="card">
+            <header class="card-head">
               <div>
                 <span class="eyebrow">Liquidity map</span>
                 <h3>Investor LP ranges</h3>
               </div>
-            </div>
-            <div class="table-card compact-card">
-              <table class="compact-table">
-                <thead>
-                  <tr>
-                    <th>Range</th>
-                    <th>VULT</th>
-                  </tr>
-                </thead>
-                <tbody id="rangesList"></tbody>
-              </table>
-            </div>
+            </header>
+            <p class="card-desc">
+              Concentrated liquidity ranges used by the verified investor LP model. The highlighted bar
+              marks the range containing the selected price.
+            </p>
+            <div id="rangeViz" class="range-viz" aria-label="Visual liquidity map"></div>
           </article>
-          <article>
-            <div class="section-heading compact-heading">
+
+          <article class="card">
+            <header class="card-head">
               <div>
                 <span class="eyebrow">Verified constants</span>
                 <h3>Fee and model table</h3>
               </div>
-            </div>
-            <div class="table-card compact-card">
-              <table class="compact-table">
-                <tbody>
-                  <tr>
-                    <td>Historical investor fee</td>
-                    <td>89,214.93 USDC<br />319,966.26 VULT</td>
-                  </tr>
-                  <tr>
-                    <td>Unclaimed active fee</td>
-                    <td>9,569.50 USDC<br />50,097.98 VULT</td>
-                  </tr>
-                  <tr>
-                    <td>Total investor fee pool</td>
-                    <td>98,784.42 USDC<br />370,064.24 VULT</td>
-                  </tr>
-                  <tr>
-                    <td>Treasury LP</td>
-                    <td>Excluded from investor calc</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            </header>
+            <ul class="constants">
+              <li>
+                <span>Historical investor fees</span>
+                <strong>89,214.93 USDC <em>+</em> 319,966.26 VULT</strong>
+              </li>
+              <li>
+                <span>Unclaimed active fees</span>
+                <strong>9,569.50 USDC <em>+</em> 50,097.98 VULT</strong>
+              </li>
+              <li class="highlight">
+                <span>Total investor fee pool</span>
+                <strong>98,784.42 USDC <em>+</em> 370,064.24 VULT</strong>
+              </li>
+              <li>
+                <span>Treasury LP</span>
+                <strong>Excluded from this calculation</strong>
+              </li>
+            </ul>
           </article>
         </section>
       </main>

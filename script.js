@@ -1,4 +1,7 @@
 const TOTAL_INVESTOR_VULT = 24_000_000;
+const VULT_TOKEN_ADDRESS = "0xb788144DF611029C60b859DF47e79B7726C4DEBa";
+const DEXSCREENER_URL = `https://api.dexscreener.com/latest/dex/tokens/${VULT_TOKEN_ADDRESS}`;
+
 const DEFAULTS = {
   investmentAmount: 10_000,
   entryPrice: 0.1,
@@ -13,25 +16,29 @@ const FEE_POOL = {
 };
 
 const POSITIONS = [
-  { range: "$0.10 -> $0.30", vult: 577_350, tickLower: 288400, tickUpper: 299400, liquidity: 430_526_825_642_029_061 },
-  { range: "$0.30 -> $0.50", vult: 258_154, tickLower: 283200, tickUpper: 288400, liquidity: 616_519_629_281_411_321 },
-  { range: "$0.50 -> $0.80", vult: 395_475, tickLower: 278600, tickUpper: 283200, liquidity: 1_364_882_096_369_430_843 },
-  { range: "$0.80 -> $1.50", vult: 1_500_000, tickLower: 272200, tickUpper: 278600, liquidity: 4_888_501_405_611_995_071 },
-  { range: "$1.50 -> $3.00", vult: 2_500_000, tickLower: 265400, tickUpper: 272200, liquidity: 10_660_244_449_215_264_780 },
-  { range: "$3.00 -> $6.00", vult: 3_500_000, tickLower: 258400, tickUpper: 265400, liquidity: 20_464_709_160_515_616_440 },
-  { range: "$6.00 -> $10.00", vult: 5_000_000, tickLower: 253200, tickUpper: 258400, liquidity: 53_511_510_127_426_224_802 },
-  { range: "$10.00 -> infinity", vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824 },
+  { range: "$0.10 -> $0.30", low: 0.1, high: 0.3, vult: 577_350, tickLower: 288400, tickUpper: 299400, liquidity: 430_526_825_642_029_061 },
+  { range: "$0.30 -> $0.50", low: 0.3, high: 0.5, vult: 258_154, tickLower: 283200, tickUpper: 288400, liquidity: 616_519_629_281_411_321 },
+  { range: "$0.50 -> $0.80", low: 0.5, high: 0.8, vult: 395_475, tickLower: 278600, tickUpper: 283200, liquidity: 1_364_882_096_369_430_843 },
+  { range: "$0.80 -> $1.50", low: 0.8, high: 1.5, vult: 1_500_000, tickLower: 272200, tickUpper: 278600, liquidity: 4_888_501_405_611_995_071 },
+  { range: "$1.50 -> $3.00", low: 1.5, high: 3.0, vult: 2_500_000, tickLower: 265400, tickUpper: 272200, liquidity: 10_660_244_449_215_264_780 },
+  { range: "$3.00 -> $6.00", low: 3.0, high: 6.0, vult: 3_500_000, tickLower: 258400, tickUpper: 265400, liquidity: 20_464_709_160_515_616_440 },
+  { range: "$6.00 -> $10.00", low: 6.0, high: 10.0, vult: 5_000_000, tickLower: 253200, tickUpper: 258400, liquidity: 53_511_510_127_426_224_802 },
+  { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824 },
 ];
 
 const SCENARIOS = [0.2, 0.3, 0.5, 1.0];
 
 const $ = (id) => document.getElementById(id);
+
 const inputs = {
   investmentAmount: $("investmentAmount"),
   entryPrice: $("entryPrice"),
   customPrice: $("customPrice"),
 };
+
 const priceButtons = Array.from(document.querySelectorAll("[data-price]"));
+const actualPriceButton = $("actualPriceButton");
+const actualPriceStatus = $("actualPriceStatus");
 
 const totalFeePool = {
   usdc: FEE_POOL.historicalUsdc + FEE_POOL.unclaimedUsdc,
@@ -101,6 +108,11 @@ function formatNumber(value, maximumFractionDigits = 2) {
   }).format(value);
 }
 
+function formatInputPrice(price) {
+  const fixed = price >= 1 ? price.toFixed(4) : price.toFixed(6);
+  return fixed.replace(/0+$/, "").replace(/\.$/, "");
+}
+
 function getState() {
   const investmentAmount = safeNumber(inputs.investmentAmount.value, DEFAULTS.investmentAmount);
   const entryPrice = safeNumber(inputs.entryPrice.value, DEFAULTS.entryPrice);
@@ -144,23 +156,29 @@ function rowForPrice(price, state, label = null, isCustom = false) {
 
 function renderSummary(state) {
   const current = rowForPrice(state.customPrice, state, "Custom", true);
+  const pnl = current.total - state.investmentAmount;
+  const pnlPct = state.investmentAmount > 0 ? (pnl / state.investmentAmount) * 100 : 0;
+  const pnlSign = pnl >= 0 ? "+" : "-";
+  const usdcDollar = current.lpUsdc;
+  const vultDollar = current.lpVult * state.customPrice;
+  const lpDollar = usdcDollar + vultDollar;
+  const usdcPct = lpDollar > 0 ? (usdcDollar / lpDollar) * 100 : 0;
+  const vultPct = lpDollar > 0 ? 100 - usdcPct : 0;
+
   $("activePrice").textContent = formatMoney(state.customPrice, 4);
   $("currentTotal").textContent = formatMoney(current.total);
-  $("currentMultiple").textContent = `${current.multiple.toFixed(2)}x investment multiple`;
+  $("currentMultiple").textContent = `${current.multiple.toFixed(2)}x multiple`;
   $("currentLpValue").textContent = formatMoney(current.lpValue);
-  $("lpBreakdown").textContent = `${formatNumber(current.lpUsdc, 2)} USDC + ${formatNumber(current.lpVult, 2)} VULT`;
+  $("lpBreakdown").textContent = `${formatNumber(current.lpUsdc, 2)} USDC · ${formatNumber(current.lpVult, 2)} VULT`;
   $("allocation").textContent = `${formatNumber(state.allocation, 2)} VULT`;
   $("share").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
   $("feeValue").textContent = formatMoney(current.feeValue);
-  $("feeSplit").textContent = `${formatNumber(state.feeUsdc, 2)} USDC + ${formatNumber(state.feeVult, 2)} VULT`;
-}
-
-function renderActiveShortcut(price) {
-  priceButtons.forEach((button) => {
-    const isActive = Math.abs(Number(button.dataset.price) - price) < 0.000001;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  });
+  $("feeSplit").textContent = `${formatNumber(state.feeUsdc, 2)} USDC · ${formatNumber(state.feeVult, 2)} VULT`;
+  $("pnlPill").textContent = `${pnlSign}${formatMoney(Math.abs(pnl))} (${pnlSign}${Math.abs(pnlPct).toFixed(1)}%)`;
+  $("pnlPill").classList.toggle("neg", pnl < 0);
+  $("barUsdc").style.width = `${usdcPct.toFixed(2)}%`;
+  $("barVult").style.width = `${vultPct.toFixed(2)}%`;
+  $("compositionRatio").textContent = `${usdcPct.toFixed(1)}% USDC · ${vultPct.toFixed(1)}% VULT`;
 }
 
 function renderTable(state) {
@@ -172,49 +190,122 @@ function renderTable(state) {
   $("resultsBody").innerHTML = rows
     .map(
       (row) => `
-        <tr class="${row.isCustom ? "custom-row" : ""}">
-          <td class="price-cell">${row.label}<small>${row.isCustom ? "current input" : "scenario"}</small></td>
+        <tr class="${row.isCustom ? "row-custom" : ""}">
+          <td data-label="VULT price">
+            <div class="cell-price">
+              <strong>${row.label}</strong>
+              <small>${row.isCustom ? "selected input" : "scenario"}</small>
+            </div>
+          </td>
           <td data-label="LP assets">
-            <span class="asset-stack">
+            <div class="cell-stack">
               <strong>${formatNumber(row.lpUsdc, 2)} USDC</strong>
               <small>${formatNumber(row.lpVult, 2)} VULT</small>
-            </span>
+            </div>
           </td>
           <td data-label="LP value">${formatMoney(row.lpValue)}</td>
           <td data-label="Fee assets">
-            <span class="asset-stack fee-assets">
+            <div class="cell-stack">
               <strong>${formatNumber(row.feeUsdc, 2)} USDC</strong>
               <small>${formatNumber(row.feeVult, 2)} VULT</small>
-            </span>
+            </div>
           </td>
           <td data-label="Fee value">${formatMoney(row.feeValue)}</td>
-          <td data-label="Total" class="total-cell">${formatMoney(row.total)}<small>${row.multiple.toFixed(2)}x</small></td>
+          <td data-label="Total" class="cell-total">
+            <strong>${formatMoney(row.total)}</strong>
+            <small>${row.multiple.toFixed(2)}x</small>
+          </td>
         </tr>
       `,
     )
     .join("");
 }
 
-function renderRanges() {
-  $("rangesList").innerHTML = POSITIONS.map(
-    (position, index) => `
-      <tr>
-        <td>Range ${index + 1}<br /><strong>${position.range}</strong></td>
-        <td>${formatNumber(position.vult, 0)} VULT</td>
-      </tr>
-    `,
-  ).join("");
+function renderRangeViz(state) {
+  const maxVult = Math.max(...POSITIONS.map((position) => position.vult));
+  const price = state.customPrice;
+
+  $("rangeViz").innerHTML = POSITIONS.map((position) => {
+    const inRange = price >= position.low && price < position.high;
+    const widthPct = (position.vult / maxVult) * 100;
+
+    return `
+      <div class="range-row">
+        <span class="range-label">${position.range}</span>
+        <div class="range-bar">
+          <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
+        </div>
+        <span class="range-vult">${formatNumber(position.vult, 0)}<br><em>VULT</em></span>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderActiveShortcut(price) {
+  priceButtons.forEach((button) => {
+    const isActive = Math.abs(Number(button.dataset.price) - price) < 0.000001;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function setActualPriceStatus(message, status = "") {
+  actualPriceStatus.textContent = message;
+  actualPriceStatus.classList.toggle("ok", status === "ok");
+  actualPriceStatus.classList.toggle("error", status === "error");
+}
+
+function pickBestPricePair(data) {
+  const pairs = Array.isArray(data?.pairs) ? data.pairs : [];
+  return pairs
+    .filter((pair) => pair.chainId === "ethereum" && Number(pair.priceUsd) > 0)
+    .sort((a, b) => Number(b.liquidity?.usd ?? 0) - Number(a.liquidity?.usd ?? 0))[0];
+}
+
+async function useActualPrice() {
+  actualPriceButton.classList.add("is-loading");
+  actualPriceButton.disabled = true;
+  setActualPriceStatus("Fetching actual VULT price from DEX Screener...");
+
+  try {
+    const response = await fetch(DEXSCREENER_URL, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`DEX Screener returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const pair = pickBestPricePair(data);
+    const price = Number(pair?.priceUsd);
+
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new Error("No valid Ethereum VULT price pair found");
+    }
+
+    inputs.customPrice.value = formatInputPrice(price);
+    update();
+    setActualPriceStatus(
+      `Actual price set to ${formatMoney(price, 4)} from the highest-liquidity Ethereum pair.`,
+      "ok",
+    );
+  } catch (error) {
+    setActualPriceStatus("Could not fetch actual price. Please enter the price manually.", "error");
+  } finally {
+    actualPriceButton.classList.remove("is-loading");
+    actualPriceButton.disabled = false;
+  }
 }
 
 function update() {
   const state = getState();
   renderSummary(state);
   renderTable(state);
+  renderRangeViz(state);
   renderActiveShortcut(state.customPrice);
 }
 
 Object.values(inputs).forEach((input) => {
   input.addEventListener("input", update);
+  input.addEventListener("focus", () => input.select());
 });
 
 priceButtons.forEach((button) => {
@@ -224,12 +315,14 @@ priceButtons.forEach((button) => {
   });
 });
 
+actualPriceButton.addEventListener("click", useActualPrice);
+
 $("resetButton").addEventListener("click", () => {
   inputs.investmentAmount.value = DEFAULTS.investmentAmount;
   inputs.entryPrice.value = DEFAULTS.entryPrice.toFixed(2);
   inputs.customPrice.value = DEFAULTS.customPrice;
+  setActualPriceStatus("Actual price uses the highest-liquidity Ethereum VULT pair from DEX Screener.");
   update();
 });
 
-renderRanges();
 update();
