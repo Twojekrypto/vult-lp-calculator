@@ -19,3 +19,7 @@ Treasury LP range `$0.029974 -> $0.992432 / 7.5M VULT` is excluded.
 3. In repository settings, enable Pages from the `main` branch root.
 
 No build step is required.
+
+## Asset Notes
+
+- USDC icon is based on `Circle USDC Logo.svg` by Circle, sourced from Wikimedia Commons under CC BY-SA 4.0.

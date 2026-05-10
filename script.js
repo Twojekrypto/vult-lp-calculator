@@ -263,7 +263,7 @@ function renderRangeViz(state) {
         <div class="range-bar">
           <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
         </div>
-        <span class="range-vult">${formatNumber(position.vult, 0)}<br><em>VULT</em></span>
+        <span class="range-vult">${tokenAmount(position.vult, "vult", 0)}</span>
       </div>
     `;
   }).join("");
