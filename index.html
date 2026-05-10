@@ -19,20 +19,48 @@
           <span>Vultisig</span>
         </a>
         <nav class="header-actions" aria-label="Calculator links">
-          <a href="https://vultisig.com/vult" target="_blank" rel="noreferrer">$VULT</a>
-          <a href="https://etherscan.io/address/0xa38682a0c4225132de450bb0f8ec545a0ade967d" target="_blank" rel="noreferrer">LP wallet</a>
+          <a
+            class="address-chip"
+            href="https://etherscan.io/token/0xb788144DF611029C60b859DF47e79B7726C4DEBa"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open VULT contract address on Etherscan"
+          >
+            <span>CA</span>
+            <strong>0xb788...DEBa</strong>
+          </a>
+          <a
+            class="address-chip"
+            href="https://etherscan.io/address/0xa38682a0c4225132de450bb0f8ec545a0ade967d"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open LP wallet on Etherscan"
+          >
+            <span>LP wallet</span>
+            <strong>0xa386...967d</strong>
+          </a>
         </nav>
       </header>
 
       <main>
-        <section class="intro" aria-labelledby="page-title">
-          <div>
-            <h1 id="page-title">VULT LP Calculator</h1>
+        <section class="intro-bar" aria-labelledby="page-title">
+          <div class="title-stack">
+            <span>$VULT investor liquidity</span>
+            <h1 id="page-title">LP Position Calculator</h1>
           </div>
-          <div class="proof-strip" aria-label="Model assumptions">
-            <span>Investor LP: <strong>24,000,000 VULT</strong></span>
-            <span>Treasury excluded: <strong>7.5M VULT</strong></span>
-            <span>Block: <strong>25063863</strong></span>
+          <div class="signal-strip" aria-label="Model assumptions">
+            <div>
+              <span>Investor LP</span>
+              <strong>24.0M VULT</strong>
+            </div>
+            <div>
+              <span>Treasury excluded</span>
+              <strong>7.5M VULT</strong>
+            </div>
+            <div>
+              <span>Verified block</span>
+              <strong>25063863</strong>
+            </div>
           </div>
         </section>
 
@@ -81,22 +109,38 @@
           </form>
 
           <aside class="output-panel" aria-label="Current position summary">
-            <span class="eyebrow">Current custom price</span>
+            <div class="panel-header output-header">
+              <div>
+                <span class="eyebrow">Live output</span>
+                <h2>Custom price summary</h2>
+              </div>
+              <div class="price-badge">
+                <span>Price</span>
+                <strong id="activePrice">$0.00</strong>
+              </div>
+            </div>
+
             <div class="total-block">
               <span>Total value</span>
               <strong id="currentTotal">$0.00</strong>
-              <small id="currentMultiple">0.00x on investment</small>
+              <small id="currentMultiple">0.00x investment multiple</small>
             </div>
-            <div class="output-grid">
+
+            <div class="metric-table" aria-label="Current position breakdown">
+              <div>
+                <span>LP value</span>
+                <strong id="currentLpValue">$0.00</strong>
+                <small id="lpBreakdown">0 USDC + 0 VULT</small>
+              </div>
+              <div>
+                <span>Generated fees</span>
+                <strong id="feeValue">$0.00</strong>
+                <small id="feeSplit">0 USDC + 0 VULT</small>
+              </div>
               <div>
                 <span>Allocation</span>
                 <strong id="allocation">0 VULT</strong>
                 <small id="share">0.000000% of investor LP</small>
-              </div>
-              <div>
-                <span>Generated fees</span>
-                <strong id="feeSplit">0 USDC + 0 VULT</strong>
-                <small id="feeValue">Worth $0.00 at custom price</small>
               </div>
             </div>
           </aside>
@@ -115,11 +159,9 @@
               <thead>
                 <tr>
                   <th>VULT Price</th>
-                  <th>LP USDC</th>
-                  <th>LP VULT</th>
-                  <th>LP without fees</th>
-                  <th>Fee USDC</th>
-                  <th>Fee VULT</th>
+                  <th>LP assets</th>
+                  <th>LP value</th>
+                  <th>Fee assets</th>
                   <th>Fee value</th>
                   <th>Total</th>
                 </tr>
@@ -131,32 +173,60 @@
 
         <section class="details-grid" aria-label="Methodology">
           <article>
-            <h3>Investor LP ranges</h3>
-            <div id="rangesList" class="ranges-list"></div>
+            <div class="section-heading compact-heading">
+              <div>
+                <span class="eyebrow">Liquidity map</span>
+                <h3>Investor LP ranges</h3>
+              </div>
+            </div>
+            <div class="table-card compact-card">
+              <table class="compact-table">
+                <thead>
+                  <tr>
+                    <th>Range</th>
+                    <th>VULT</th>
+                  </tr>
+                </thead>
+                <tbody id="rangesList"></tbody>
+              </table>
+            </div>
           </article>
           <article>
-            <h3>Fee constants</h3>
-            <dl class="fee-list">
+            <div class="section-heading compact-heading">
               <div>
-                <dt>Historical investor fee</dt>
-                <dd>89,214.93 USDC + 319,966.26 VULT</dd>
+                <span class="eyebrow">Verified constants</span>
+                <h3>Fee and model table</h3>
               </div>
-              <div>
-                <dt>Unclaimed active fee</dt>
-                <dd>9,569.50 USDC + 50,097.98 VULT</dd>
-              </div>
-              <div>
-                <dt>Total investor fee pool</dt>
-                <dd>98,784.42 USDC + 370,064.24 VULT</dd>
-              </div>
-            </dl>
+            </div>
+            <div class="table-card compact-card">
+              <table class="compact-table">
+                <tbody>
+                  <tr>
+                    <td>Historical investor fee</td>
+                    <td>89,214.93 USDC<br />319,966.26 VULT</td>
+                  </tr>
+                  <tr>
+                    <td>Unclaimed active fee</td>
+                    <td>9,569.50 USDC<br />50,097.98 VULT</td>
+                  </tr>
+                  <tr>
+                    <td>Total investor fee pool</td>
+                    <td>98,784.42 USDC<br />370,064.24 VULT</td>
+                  </tr>
+                  <tr>
+                    <td>Treasury LP</td>
+                    <td>Excluded from investor calc</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </article>
         </section>
       </main>
 
       <footer>
         <span>Static GitHub Pages calculator.</span>
-        <span>Uniswap V3 math uses verified position ticks and liquidity; no treasury LP included.</span>
+        <span>Uniswap V3 math uses verified ticks and liquidity; treasury LP is not included.</span>
       </footer>
     </div>
 

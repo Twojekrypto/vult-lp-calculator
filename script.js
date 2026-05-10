@@ -143,12 +143,15 @@ function rowForPrice(price, state, label = null, isCustom = false) {
 
 function renderSummary(state) {
   const current = rowForPrice(state.customPrice, state, "Custom", true);
+  $("activePrice").textContent = formatMoney(state.customPrice, 4);
   $("currentTotal").textContent = formatMoney(current.total);
-  $("currentMultiple").textContent = `${current.multiple.toFixed(2)}x on investment`;
+  $("currentMultiple").textContent = `${current.multiple.toFixed(2)}x investment multiple`;
+  $("currentLpValue").textContent = formatMoney(current.lpValue);
+  $("lpBreakdown").textContent = `${formatNumber(current.lpUsdc, 2)} USDC + ${formatNumber(current.lpVult, 2)} VULT`;
   $("allocation").textContent = `${formatNumber(state.allocation, 2)} VULT`;
   $("share").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
+  $("feeValue").textContent = formatMoney(current.feeValue);
   $("feeSplit").textContent = `${formatNumber(state.feeUsdc, 2)} USDC + ${formatNumber(state.feeVult, 2)} VULT`;
-  $("feeValue").textContent = `Worth ${formatMoney(current.feeValue)} at custom price`;
 }
 
 function renderTable(state) {
@@ -161,14 +164,22 @@ function renderTable(state) {
     .map(
       (row) => `
         <tr class="${row.isCustom ? "custom-row" : ""}">
-          <td class="price-cell">${row.label}</td>
-          <td data-label="LP USDC">${formatNumber(row.lpUsdc, 2)}</td>
-          <td data-label="LP VULT">${formatNumber(row.lpVult, 2)}</td>
-          <td data-label="LP without fees">${formatMoney(row.lpValue)}</td>
-          <td data-label="Fee USDC">${formatNumber(row.feeUsdc, 2)}</td>
-          <td data-label="Fee VULT">${formatNumber(row.feeVult, 2)}</td>
+          <td class="price-cell">${row.label}<small>${row.isCustom ? "current input" : "scenario"}</small></td>
+          <td data-label="LP assets">
+            <span class="asset-stack">
+              <strong>${formatNumber(row.lpUsdc, 2)} USDC</strong>
+              <small>${formatNumber(row.lpVult, 2)} VULT</small>
+            </span>
+          </td>
+          <td data-label="LP value">${formatMoney(row.lpValue)}</td>
+          <td data-label="Fee assets">
+            <span class="asset-stack fee-assets">
+              <strong>${formatNumber(row.feeUsdc, 2)} USDC</strong>
+              <small>${formatNumber(row.feeVult, 2)} VULT</small>
+            </span>
+          </td>
           <td data-label="Fee value">${formatMoney(row.feeValue)}</td>
-          <td data-label="Total" class="total-cell">${formatMoney(row.total)}</td>
+          <td data-label="Total" class="total-cell">${formatMoney(row.total)}<small>${row.multiple.toFixed(2)}x</small></td>
         </tr>
       `,
     )
@@ -177,11 +188,11 @@ function renderTable(state) {
 
 function renderRanges() {
   $("rangesList").innerHTML = POSITIONS.map(
-    (position) => `
-      <div class="range-row">
-        <span>${position.range}</span>
-        <span>${formatNumber(position.vult, 0)} VULT</span>
-      </div>
+    (position, index) => `
+      <tr>
+        <td>Range ${index + 1}<br /><strong>${position.range}</strong></td>
+        <td>${formatNumber(position.vult, 0)} VULT</td>
+      </tr>
     `,
   ).join("");
 }
