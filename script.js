@@ -31,6 +31,7 @@ const inputs = {
   entryPrice: $("entryPrice"),
   customPrice: $("customPrice"),
 };
+const priceButtons = Array.from(document.querySelectorAll("[data-price]"));
 
 const totalFeePool = {
   usdc: FEE_POOL.historicalUsdc + FEE_POOL.unclaimedUsdc,
@@ -154,6 +155,14 @@ function renderSummary(state) {
   $("feeSplit").textContent = `${formatNumber(state.feeUsdc, 2)} USDC + ${formatNumber(state.feeVult, 2)} VULT`;
 }
 
+function renderActiveShortcut(price) {
+  priceButtons.forEach((button) => {
+    const isActive = Math.abs(Number(button.dataset.price) - price) < 0.000001;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
 function renderTable(state) {
   const rows = [
     rowForPrice(state.customPrice, state, `${formatMoney(state.customPrice, 4)} custom`, true),
@@ -201,13 +210,14 @@ function update() {
   const state = getState();
   renderSummary(state);
   renderTable(state);
+  renderActiveShortcut(state.customPrice);
 }
 
 Object.values(inputs).forEach((input) => {
   input.addEventListener("input", update);
 });
 
-document.querySelectorAll("[data-price]").forEach((button) => {
+priceButtons.forEach((button) => {
   button.addEventListener("click", () => {
     inputs.customPrice.value = button.dataset.price;
     update();

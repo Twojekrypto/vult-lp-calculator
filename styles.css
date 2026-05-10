@@ -2,20 +2,22 @@
   color-scheme: dark;
   --bg: #040813;
   --bg-2: #07111f;
-  --surface: rgba(8, 18, 36, 0.88);
-  --surface-strong: rgba(11, 24, 47, 0.96);
+  --surface: rgba(7, 17, 34, 0.88);
+  --surface-strong: rgba(10, 23, 44, 0.96);
   --surface-soft: rgba(255, 255, 255, 0.045);
-  --line: rgba(255, 255, 255, 0.1);
-  --line-strong: rgba(83, 135, 255, 0.34);
+  --line: rgba(162, 189, 235, 0.13);
+  --line-strong: rgba(47, 224, 189, 0.38);
   --text: #f6fbff;
-  --muted: #a4b2c6;
-  --soft: #76869c;
-  --blue: #2f6dff;
-  --cyan: #2fe0bd;
+  --muted: #adbbcf;
+  --soft: #7d8fa7;
+  --blue: #166bff;
+  --blue-soft: rgba(22, 107, 255, 0.16);
+  --cyan: #25e5c1;
+  --cyan-soft: rgba(37, 229, 193, 0.14);
   --gold: #f3c862;
   --green: #6bf3a7;
   --danger: #ff6f91;
-  --shadow: 0 22px 60px rgba(0, 0, 0, 0.36);
+  --shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
   --radius: 8px;
   --container: 1220px;
   font-family:
@@ -36,8 +38,9 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(135deg, rgba(47, 109, 255, 0.12) 0%, transparent 32%),
-    linear-gradient(180deg, #030713 0%, #07111f 48%, #040813 100%);
+    radial-gradient(circle at 18% -12%, rgba(37, 229, 193, 0.13), transparent 24rem),
+    linear-gradient(135deg, rgba(22, 107, 255, 0.14) 0%, transparent 36%),
+    linear-gradient(180deg, #030713 0%, #07111f 52%, #040813 100%);
   color: var(--text);
 }
 
@@ -71,22 +74,24 @@ button {
   position: relative;
   width: min(100% - 36px, var(--container));
   margin: 0 auto;
-  padding: 16px 0 30px;
+  padding: 14px 0 30px;
 }
 
 .site-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  min-height: 56px;
-  margin-bottom: 18px;
-  padding: 8px;
+  gap: 14px;
+  min-height: 52px;
+  margin-bottom: 16px;
+  padding: 7px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius);
-  background: rgba(3, 7, 19, 0.78);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(18px);
+  background:
+    linear-gradient(180deg, rgba(12, 24, 46, 0.7), rgba(4, 8, 18, 0.74)),
+    rgba(3, 7, 19, 0.8);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(20px);
 }
 
 .brand {
@@ -107,7 +112,7 @@ button {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .address-chip,
@@ -116,54 +121,65 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  min-height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.035));
   color: var(--muted);
   cursor: pointer;
   transition:
     background 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
+    box-shadow 160ms ease,
     transform 160ms ease;
 }
 
 .address-chip {
-  gap: 10px;
-  padding: 0 12px;
+  gap: 8px;
+  padding: 0 11px;
+  border-color: rgba(37, 229, 193, 0.18);
+  background:
+    linear-gradient(180deg, rgba(11, 28, 50, 0.92), rgba(7, 15, 31, 0.92)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 22px rgba(0, 0, 0, 0.2);
   white-space: nowrap;
 }
 
 .address-chip span {
   color: var(--cyan);
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 
 .address-chip strong {
   color: var(--text);
-  font-size: 0.82rem;
-  font-weight: 760;
+  font-size: 0.8rem;
+  font-weight: 820;
 }
 
 .address-chip:hover,
 .reset-button:hover,
 .price-shortcuts button:hover {
   border-color: var(--line-strong);
-  background: linear-gradient(180deg, rgba(47, 109, 255, 0.24), rgba(47, 109, 255, 0.08));
+  background: linear-gradient(180deg, rgba(37, 229, 193, 0.16), rgba(22, 107, 255, 0.12));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 12px 28px rgba(22, 107, 255, 0.16);
   color: var(--text);
   transform: translateY(-1px);
 }
 
 .intro-bar {
   display: grid;
-  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
   align-items: end;
-  gap: 18px;
-  margin-bottom: 14px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .title-stack span,
@@ -185,14 +201,14 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-size: 2rem;
+  font-size: 1.9rem;
   line-height: 1.05;
   letter-spacing: 0;
 }
 
 h2 {
   margin-bottom: 0;
-  font-size: 1.42rem;
+  font-size: 1.28rem;
   line-height: 1.15;
   letter-spacing: 0;
 }
@@ -207,22 +223,18 @@ h3 {
 .signal-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.035);
+  gap: 8px;
 }
 
 .signal-strip div {
   display: grid;
   gap: 4px;
-  min-height: 56px;
-  padding: 10px 13px;
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.signal-strip div:last-child {
-  border-right: 0;
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 1px solid rgba(162, 189, 235, 0.1);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .signal-strip span,
@@ -231,7 +243,7 @@ h3 {
 .price-badge span,
 .field > span:first-child {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 780;
   letter-spacing: 0.02em;
 }
@@ -245,8 +257,9 @@ h3 {
 .calculator-surface {
   display: grid;
   grid-template-columns: minmax(0, 0.88fr) minmax(420px, 1.12fr);
+  align-items: start;
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .input-panel,
@@ -254,13 +267,15 @@ h3 {
 .table-card {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(11, 24, 47, 0.94), rgba(7, 15, 31, 0.94));
+  background:
+    linear-gradient(180deg, rgba(12, 26, 50, 0.94), rgba(6, 14, 29, 0.94)),
+    rgba(7, 15, 31, 0.94);
   box-shadow: var(--shadow);
 }
 
 .input-panel,
 .output-panel {
-  padding: 18px;
+  padding: 16px;
 }
 
 .panel-header,
@@ -280,10 +295,11 @@ h3 {
 }
 
 .reset-button {
-  min-width: 74px;
-  padding: 0 12px;
+  min-width: 68px;
+  min-height: 34px;
+  padding: 0 11px;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 850;
 }
 
@@ -305,11 +321,11 @@ h3 {
 .input-wrap {
   display: flex;
   align-items: center;
-  min-height: 50px;
+  min-height: 48px;
   padding: 0 13px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(162, 189, 235, 0.14);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(255, 255, 255, 0.052);
   color: var(--soft);
 }
 
@@ -325,28 +341,48 @@ h3 {
   outline: 0;
   background: transparent;
   color: var(--text);
-  font-size: 1.06rem;
+  font-size: 1.02rem;
   font-weight: 850;
 }
 
 .price-shortcuts {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   margin-top: 12px;
+  padding: 4px;
+  border: 1px solid rgba(162, 189, 235, 0.12);
+  border-radius: var(--radius);
+  background: rgba(3, 7, 19, 0.34);
 }
 
 .price-shortcuts button {
-  min-height: 40px;
+  min-height: 36px;
+  border-color: transparent;
+  background: transparent;
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 0.87rem;
   font-weight: 850;
+}
+
+.price-shortcuts button.is-active {
+  border-color: rgba(37, 229, 193, 0.42);
+  background:
+    linear-gradient(180deg, rgba(37, 229, 193, 0.2), rgba(22, 107, 255, 0.16)),
+    rgba(255, 255, 255, 0.045);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 22px rgba(37, 229, 193, 0.1);
+  color: #ffffff;
 }
 
 .output-panel {
   position: relative;
   overflow: hidden;
   border-color: rgba(47, 224, 189, 0.2);
+  background:
+    linear-gradient(145deg, rgba(6, 32, 43, 0.95) 0%, rgba(11, 25, 57, 0.96) 100%),
+    rgba(7, 15, 31, 0.94);
 }
 
 .output-panel::before {
@@ -370,11 +406,11 @@ h3 {
 .price-badge {
   display: grid;
   gap: 3px;
-  min-width: 104px;
-  padding: 9px 11px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  min-width: 96px;
+  padding: 8px 10px;
+  border: 1px solid rgba(37, 229, 193, 0.2);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(3, 7, 19, 0.24);
   text-align: right;
 }
 
@@ -384,14 +420,14 @@ h3 {
 }
 
 .total-block {
-  margin: 12px 0 18px;
+  margin: 10px 0 16px;
 }
 
 .total-block strong {
   display: block;
   margin-top: 6px;
   color: var(--text);
-  font-size: 4rem;
+  font-size: 3.65rem;
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: 0;
@@ -420,7 +456,7 @@ h3 {
   display: grid;
   grid-template-columns: minmax(112px, 0.45fr) minmax(0, 0.55fr);
   gap: 4px 14px;
-  padding: 12px 0;
+  padding: 11px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -460,7 +496,8 @@ h3 {
 
 .table-card {
   overflow: auto;
-  background: rgba(7, 15, 31, 0.88);
+  border-color: rgba(162, 189, 235, 0.12);
+  background: rgba(7, 15, 31, 0.82);
   box-shadow: none;
 }
 
@@ -475,7 +512,7 @@ table {
 
 th,
 td {
-  padding: 13px 15px;
+  padding: 12px 15px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.075);
   text-align: right;
   vertical-align: middle;
@@ -489,7 +526,7 @@ td:first-child {
 
 th {
   color: var(--muted);
-  font-size: 0.67rem;
+  font-size: 0.66rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -505,7 +542,9 @@ tbody tr:last-child td {
 }
 
 tr.custom-row td {
-  background: rgba(47, 224, 189, 0.06);
+  background:
+    linear-gradient(90deg, rgba(37, 229, 193, 0.105), rgba(22, 107, 255, 0.05)),
+    rgba(47, 224, 189, 0.04);
 }
 
 tr:hover td {
@@ -573,8 +612,8 @@ tr:hover td {
 
 .compact-table th,
 .compact-table td {
-  padding: 10px 12px;
-  font-size: 0.88rem;
+  padding: 9px 12px;
+  font-size: 0.86rem;
 }
 
 .compact-table td:first-child {
@@ -622,7 +661,7 @@ footer {
   }
 
   .total-block strong {
-    font-size: 3.3rem;
+    font-size: 3.15rem;
   }
 
   footer {
@@ -633,16 +672,20 @@ footer {
 
 @media (max-width: 760px) {
   .page-shell {
-    width: min(100% - 18px, var(--container));
-    padding-top: 10px;
+    width: min(100% - 16px, var(--container));
+    padding-top: 8px;
   }
 
   .site-header {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
   }
 
   .header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
   }
 
@@ -657,32 +700,27 @@ footer {
   }
 
   h1 {
-    font-size: 1.72rem;
+    font-size: 1.54rem;
   }
 
   .signal-strip {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
   }
 
   .signal-strip div {
-    min-height: 48px;
-    border-right: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .signal-strip div:last-child {
-    border-bottom: 0;
+    min-height: 54px;
+    padding: 8px 7px;
   }
 
   .field-grid,
-  .price-shortcuts,
   .metric-table div {
     grid-template-columns: 1fr;
   }
 
   .input-panel,
   .output-panel {
-    padding: 16px;
+    padding: 14px;
   }
 
   .output-header {
@@ -694,7 +732,7 @@ footer {
   }
 
   .total-block strong {
-    font-size: 2.75rem;
+    font-size: 2.52rem;
   }
 
   .metric-table strong,
@@ -725,7 +763,7 @@ footer {
   }
 
   .table-section tr {
-    padding: 13px 14px;
+    padding: 12px 14px;
     border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: var(--radius);
     background: rgba(255, 255, 255, 0.026);
@@ -772,12 +810,18 @@ footer {
 }
 
 @media (max-width: 460px) {
-  .header-actions {
-    flex-direction: column;
-  }
-
   .address-chip {
     width: 100%;
+    min-height: 34px;
+    padding-inline: 8px;
+  }
+
+  .address-chip span {
+    font-size: 0.6rem;
+  }
+
+  .address-chip strong {
+    display: none;
   }
 
   .panel-header,
@@ -794,5 +838,13 @@ footer {
   .price-badge {
     width: 100%;
     text-align: left;
+  }
+
+  .signal-strip span {
+    font-size: 0.62rem;
+  }
+
+  .signal-strip strong {
+    font-size: 0.82rem;
   }
 }
