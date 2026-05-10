@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260510-range-meta" />
+    <link rel="stylesheet" href="./styles.css?v=20260510-ux-pass" />
   </head>
   <body>
     <div class="ambient-glow" aria-hidden="true">
@@ -114,7 +114,7 @@
                 <button type="button" class="preset" data-price="0.20">$0.20</button>
                 <button type="button" class="preset" data-price="0.30">$0.30</button>
                 <button type="button" class="preset" data-price="0.50">$0.50</button>
-                <button type="button" class="preset" data-price="1.00">$1.00</button>
+                <button type="button" class="preset" data-price="1.50">$1.50</button>
                 <button type="button" class="preset preset-live" id="actualPriceButton">
                   <span>Actual price</span>
                 </button>
@@ -218,6 +218,31 @@
               <div id="compositionRatio" class="composition-breakdown" aria-label="LP composition percentages"></div>
             </div>
           </aside>
+        </section>
+
+        <section class="sticky-summary" aria-label="Compact live position summary">
+          <div class="sticky-summary-card">
+            <div class="sticky-summary-main">
+              <span>Selected price</span>
+              <strong id="stickyPrice">$0.00</strong>
+            </div>
+            <div class="sticky-summary-item sticky-summary-total">
+              <span>Total</span>
+              <strong id="stickyTotal">$0.00</strong>
+            </div>
+            <div class="sticky-summary-item">
+              <span>LP value</span>
+              <strong id="stickyLpValue">$0.00</strong>
+            </div>
+            <div class="sticky-summary-item">
+              <span>Fees</span>
+              <strong id="stickyFees">$0.00</strong>
+            </div>
+            <div class="sticky-summary-item sticky-summary-multiple">
+              <span>Multiple</span>
+              <strong id="stickyMultiple">0.00x</strong>
+            </div>
+          </div>
         </section>
 
         <section class="block" aria-labelledby="scenariosTitle">
@@ -337,6 +362,6 @@
       </footer>
     </div>
 
-    <script src="./script.js?v=20260510-range-meta"></script>
+    <script src="./script.js?v=20260510-ux-pass"></script>
   </body>
 </html>

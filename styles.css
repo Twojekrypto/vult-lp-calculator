@@ -1162,6 +1162,69 @@ table {
     0 0 14px rgba(72, 214, 193, 0.2);
 }
 
+.sticky-summary {
+  position: sticky;
+  top: 12px;
+  z-index: 12;
+  margin-top: clamp(14px, 1.6vw, 22px);
+}
+
+.sticky-summary-card {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.1fr) repeat(4, minmax(120px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(140, 180, 230, 0.16);
+  border-radius: 16px;
+  background: rgba(140, 180, 230, 0.12);
+  box-shadow:
+    0 16px 42px -28px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.018) inset;
+  backdrop-filter: blur(16px);
+}
+
+.sticky-summary-main,
+.sticky-summary-item {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 11px 14px;
+  background: rgba(6, 15, 34, 0.82);
+}
+
+.sticky-summary-main {
+  background:
+    linear-gradient(135deg, rgba(72, 214, 193, 0.07), rgba(121, 166, 232, 0.035)),
+    rgba(6, 15, 34, 0.84);
+}
+
+.sticky-summary span {
+  color: var(--text-mute);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.sticky-summary strong {
+  overflow: hidden;
+  color: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sticky-summary-main strong,
+.sticky-summary-total strong {
+  color: var(--teal);
+}
+
+.sticky-summary-multiple strong {
+  color: var(--text-soft);
+}
+
 .block {
   display: grid;
   gap: 14px;
@@ -1776,6 +1839,7 @@ table {
 }
 
 .constants li {
+  position: relative;
   display: grid;
   gap: 6px;
   align-content: center;
@@ -1785,7 +1849,17 @@ table {
 }
 
 .constants li.highlight {
-  background: rgba(72, 214, 193, 0.04);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent),
+    rgba(6, 15, 34, 0.52);
+}
+
+.constants li.highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: rgba(72, 214, 193, 0.24);
 }
 
 .constants li > span {
@@ -1938,6 +2012,10 @@ footer {
     grid-column: auto;
   }
 
+  .sticky-summary {
+    display: none;
+  }
+
   .table-card-head {
     flex-direction: column;
   }
@@ -1975,7 +2053,7 @@ footer {
 
   .data-table tbody {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
   }
 
@@ -1986,7 +2064,7 @@ footer {
   }
 
   .data-table tr {
-    padding: 14px;
+    padding: 12px;
     border: 1px solid var(--border);
     border-radius: 16px;
     background: rgba(6, 15, 34, 0.5);
@@ -2001,8 +2079,8 @@ footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
-    padding: 9px 0;
+    gap: 14px;
+    padding: 7px 0;
     border-bottom: 1px solid var(--border);
     text-align: right;
     white-space: normal;
@@ -2020,7 +2098,7 @@ footer {
   .data-table td::before {
     content: attr(data-label);
     color: var(--text-mute);
-    font-size: 10.5px;
+    font-size: 9.5px;
     font-weight: 900;
     letter-spacing: 0.08em;
     text-align: left;
@@ -2034,6 +2112,30 @@ footer {
   .cell-stack,
   .cell-total {
     justify-items: end;
+  }
+
+  .cell-price,
+  .cell-stack,
+  .cell-total {
+    gap: 1px;
+  }
+
+  .cell-price small,
+  .cell-stack small,
+  .cell-total small {
+    font-size: 11px;
+  }
+
+  .cell-total {
+    min-width: 0;
+  }
+
+  .cell-total .scenario-delta {
+    font-size: 9.5px;
+  }
+
+  .active-range-link {
+    padding: 6px 8px;
   }
 
   .range-row {
