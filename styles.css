@@ -1110,7 +1110,8 @@ table {
 .composition-chip {
   display: grid;
   grid-template-columns: 1fr;
-  justify-items: start;
+  justify-items: center;
+  align-content: center;
   gap: 3px;
   width: auto;
   height: auto;
@@ -1124,23 +1125,27 @@ table {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
   font-weight: 800;
-  text-align: left;
+  text-align: center;
 }
 
 .composition-chip-main {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
+  width: 100%;
   color: var(--text);
   font-size: 13px;
   white-space: nowrap;
 }
 
 .composition-chip-sub {
+  width: 100%;
   color: var(--text-mute);
   font-family: Inter, system-ui, sans-serif;
   font-size: 11px;
   font-weight: 800;
+  text-align: center;
 }
 
 .composition-chip .token-icon {

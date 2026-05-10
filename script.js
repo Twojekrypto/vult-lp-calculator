@@ -28,7 +28,7 @@ const POSITIONS = [
   { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824, nftId: 1189462, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
 ];
 
-const SCENARIOS = [0.2, 0.3, 0.5, 1.0];
+const SCENARIOS = [0.3, 0.5, 0.8, 1.0, 3.0];
 
 const $ = (id) => document.getElementById(id);
 
