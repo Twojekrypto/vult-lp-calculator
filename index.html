@@ -124,6 +124,24 @@
               </small>
             </div>
 
+            <div class="setup-preview" aria-label="Calculated setup preview">
+              <div class="setup-preview-main">
+                <span>Calculated allocation</span>
+                <strong id="setupAllocation">0 VULT</strong>
+                <small id="setupShare">0.000000% of investor LP</small>
+              </div>
+              <div class="setup-preview-grid">
+                <div>
+                  <span>Capital in</span>
+                  <strong id="setupCapital">$0.00</strong>
+                </div>
+                <div>
+                  <span>Fee claim</span>
+                  <strong id="setupFees"></strong>
+                </div>
+              </div>
+            </div>
+
             <div class="model-strip" aria-label="Verified model assumptions">
               <div class="model-item">
                 <span>Investor LP</span>
@@ -146,10 +164,20 @@
                 <span class="eyebrow">Live output</span>
                 <h2>Position summary</h2>
               </div>
-              <div class="price-pill" aria-label="Selected VULT price">
+              <a
+                id="dexscreenerLink"
+                class="price-pill"
+                href="https://dexscreener.com/ethereum/0x6df52cc6e2e6f6531e4ceb4b083cf49864a89020"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open VULT chart on DEX Screener"
+              >
                 <span class="token-icon token-vult price-token" aria-hidden="true"></span>
                 <strong id="activePrice">$0.00</strong>
-              </div>
+                <svg class="price-pill-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
             </header>
 
             <div class="hero-total">
@@ -234,8 +262,9 @@
               </div>
             </header>
             <p class="card-desc">
-              Pro-rata USDC/VULT position across the verified investor ranges at the selected price.
+              Whole LP position with generated fees, plus pro-rata USDC/VULT split across verified ranges.
             </p>
+            <div id="rangeTotal" class="range-total" aria-label="Whole LP position including fees"></div>
             <div id="rangeViz" class="range-viz" aria-label="Visual liquidity map"></div>
           </article>
 

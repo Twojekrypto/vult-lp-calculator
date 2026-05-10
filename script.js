@@ -1,6 +1,7 @@
 const TOTAL_INVESTOR_VULT = 24_000_000;
 const VULT_TOKEN_ADDRESS = "0xb788144DF611029C60b859DF47e79B7726C4DEBa";
 const DEXSCREENER_URL = `https://api.dexscreener.com/latest/dex/tokens/${VULT_TOKEN_ADDRESS}`;
+const DEXSCREENER_CHART_URL = "https://dexscreener.com/ethereum/0x6df52cc6e2e6f6531e4ceb4b083cf49864a89020";
 
 const DEFAULTS = {
   investmentAmount: 1_000,
@@ -39,6 +40,7 @@ const inputs = {
 const priceButtons = Array.from(document.querySelectorAll("[data-price]"));
 const actualPriceButton = $("actualPriceButton");
 const actualPriceStatus = $("actualPriceStatus");
+const dexscreenerLink = $("dexscreenerLink");
 
 const totalFeePool = {
   usdc: FEE_POOL.historicalUsdc + FEE_POOL.unclaimedUsdc,
@@ -193,6 +195,13 @@ function rowForPrice(price, state, label = null, isCustom = false) {
   };
 }
 
+function renderSetupPreview(state) {
+  $("setupAllocation").innerHTML = tokenAmount(state.allocation, "vult", 2);
+  $("setupShare").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
+  $("setupCapital").textContent = formatMoney(state.investmentAmount);
+  $("setupFees").innerHTML = `${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(state.feeVult, "vult")}`;
+}
+
 function renderSummary(state) {
   const current = rowForPrice(state.customPrice, state, "Custom", true);
   const pnl = current.total - state.investmentAmount;
@@ -244,14 +253,14 @@ function renderTable(state) {
               <small>${tokenAmount(row.lpVult, "vult")}</small>
             </div>
           </td>
-          <td data-label="LP value">${formatMoney(row.lpValue)}</td>
+          <td data-label="LP value"><span class="cell-value">${formatMoney(row.lpValue)}</span></td>
           <td data-label="Fee assets">
             <div class="cell-stack">
               <strong>${tokenAmount(row.feeUsdc, "usdc")}</strong>
               <small>${tokenAmount(row.feeVult, "vult")}</small>
             </div>
           </td>
-          <td data-label="Fee value">${formatMoney(row.feeValue)}</td>
+          <td data-label="Fee value"><span class="cell-value">${formatMoney(row.feeValue)}</span></td>
           <td data-label="Total" class="cell-total">
             <strong>${formatMoney(row.total)}</strong>
             <small>${row.multiple.toFixed(2)}x</small>
@@ -265,6 +274,29 @@ function renderTable(state) {
 function renderRangeViz(state) {
   const maxVult = Math.max(...POSITIONS.map((position) => position.vult));
   const price = state.customPrice;
+  const current = rowForPrice(price, state, "Custom", true);
+  const totalUsdc = current.lpUsdc + state.feeUsdc;
+  const totalVult = current.lpVult + state.feeVult;
+
+  $("rangeTotal").innerHTML = `
+    <div class="range-total-hero">
+      <span>Whole position with fees</span>
+      <strong>${formatMoney(current.total)}</strong>
+      <small>${tokenAmount(totalUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(totalVult, "vult")}</small>
+    </div>
+    <div class="range-total-grid">
+      <div>
+        <span>LP assets</span>
+        <strong>${formatMoney(current.lpValue)}</strong>
+        <small>${tokenAmount(current.lpUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(current.lpVult, "vult")}</small>
+      </div>
+      <div>
+        <span>Generated fees</span>
+        <strong>${formatMoney(current.feeValue)}</strong>
+        <small>${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(state.feeVult, "vult")}</small>
+      </div>
+    </div>
+  `;
 
   $("rangeViz").innerHTML = POSITIONS.map((position) => {
     const inRange = price >= position.low && price < position.high;
@@ -376,6 +408,9 @@ async function useActualPrice() {
     }
 
     inputs.customPrice.value = formatInputPrice(price);
+    if (pair.url) {
+      dexscreenerLink.href = pair.url;
+    }
     update();
     setActualPriceStatus(
       `Actual price set to ${formatMoney(price, 4)} from the highest-liquidity Ethereum pair.`,
@@ -391,6 +426,7 @@ async function useActualPrice() {
 
 function update() {
   const state = getState();
+  renderSetupPreview(state);
   renderSummary(state);
   renderTable(state);
   renderRangeViz(state);
@@ -415,6 +451,7 @@ $("resetButton").addEventListener("click", () => {
   inputs.investmentAmount.value = DEFAULTS.investmentAmount;
   inputs.entryPrice.value = DEFAULTS.entryPrice.toFixed(2);
   inputs.customPrice.value = DEFAULTS.customPrice;
+  dexscreenerLink.href = DEXSCREENER_CHART_URL;
   setActualPriceStatus("Actual price uses the highest-liquidity Ethereum VULT pair from DEX Screener.");
   update();
 });
