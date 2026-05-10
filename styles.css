@@ -1591,8 +1591,20 @@ table {
   font-size: 11px;
 }
 
-.range-meta {
-  flex-wrap: wrap;
+.range-label .range-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  justify-items: start;
+  white-space: normal;
+}
+
+.range-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .range-nft {
