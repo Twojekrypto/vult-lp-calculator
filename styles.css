@@ -29,7 +29,7 @@
   --radius-lg: 20px;
   --radius-md: 14px;
   --radius-sm: 10px;
-  --max-w: 1240px;
+  --max-w: 1360px;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -126,7 +126,7 @@ table {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(24px, 3.5vw, 42px);
+  gap: clamp(22px, 3vw, 36px);
   max-width: var(--max-w);
   margin: 0 auto;
   padding: 22px clamp(16px, 3vw, 40px) 72px;
@@ -213,17 +213,14 @@ table {
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 32px;
-  align-items: end;
-  padding: 8px 4px 0;
+  max-width: 720px;
+  padding: 4px 4px 0;
 }
 
 .hero-text {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .eyebrow {
@@ -252,7 +249,7 @@ table {
 
 .hero h1 {
   margin-top: 2px;
-  font-size: clamp(34px, 5vw, 52px);
+  font-size: clamp(32px, 4vw, 48px);
   font-weight: 800;
 }
 
@@ -263,32 +260,29 @@ table {
   -webkit-text-fill-color: transparent;
 }
 
-.hero p {
-  max-width: 58ch;
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 16px;
-}
-
-.hero-stats {
+.model-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   overflow: hidden;
+  margin-top: 2px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--border);
   backdrop-filter: blur(8px);
 }
 
-.stat {
+.model-item {
   display: grid;
   gap: 4px;
-  padding: 16px 18px;
-  background: var(--surface);
+  min-width: 0;
+  padding: 14px 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
+    rgba(6, 15, 34, 0.46);
 }
 
-.stat span {
+.model-item span {
   color: var(--text-mute);
   font-size: 11px;
   font-weight: 700;
@@ -296,11 +290,26 @@ table {
   text-transform: uppercase;
 }
 
-.stat strong {
+.model-item strong {
+  overflow: hidden;
   color: var(--text);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 14px;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-item:nth-child(1) strong {
+  color: var(--teal);
+}
+
+.model-item:nth-child(2) strong {
+  color: #8fc8ff;
+}
+
+.model-item:nth-child(3) strong {
+  color: var(--gold);
 }
 
 .core {
@@ -760,18 +769,6 @@ table {
   gap: 14px;
 }
 
-.hint {
-  max-width: 340px;
-  color: var(--text-mute);
-  font-size: 13px;
-  text-align: right;
-}
-
-.hint em {
-  color: var(--teal);
-  font-style: normal;
-}
-
 .table-card {
   overflow: auto;
   border: 1px solid var(--border);
@@ -781,12 +778,29 @@ table {
 }
 
 .data-table {
-  min-width: 900px;
+  min-width: 1040px;
+  table-layout: fixed;
+}
+
+.data-table .col-price {
+  width: 16%;
+}
+
+.data-table .col-assets {
+  width: 21%;
+}
+
+.data-table .col-value {
+  width: 14%;
+}
+
+.data-table .col-total {
+  width: 14%;
 }
 
 .data-table th,
 .data-table td {
-  padding: 15px 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid var(--border);
   text-align: right;
   vertical-align: middle;
@@ -812,6 +826,13 @@ table {
   font-weight: 800;
 }
 
+.data-table td:nth-child(3),
+.data-table td:nth-child(5),
+.data-table td:nth-child(6) {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+}
+
 .data-table tbody tr:last-child td {
   border-bottom: 0;
 }
@@ -833,6 +854,16 @@ table {
 .cell-total {
   display: grid;
   gap: 2px;
+}
+
+.cell-price {
+  justify-items: start;
+  text-align: left;
+}
+
+.cell-stack,
+.cell-total {
+  justify-items: end;
 }
 
 .cell-price small,
@@ -963,23 +994,9 @@ footer {
 }
 
 @media (max-width: 980px) {
-  .hero,
   .core,
   .dual {
     grid-template-columns: 1fr;
-  }
-
-  .hero {
-    gap: 20px;
-  }
-
-  .hero-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .hint {
-    max-width: none;
-    text-align: left;
   }
 }
 
@@ -1023,23 +1040,19 @@ footer {
     font-size: 30px;
   }
 
-  .hero p {
-    font-size: 14px;
-  }
-
-  .hero-stats {
+  .model-strip {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .stat {
+  .model-item {
     padding: 10px 8px;
   }
 
-  .stat span {
+  .model-item span {
     font-size: 9.5px;
   }
 
-  .stat strong {
+  .model-item strong {
     font-size: 12px;
   }
 
@@ -1199,6 +1212,10 @@ footer {
 
   .preset-live {
     grid-column: 1 / -1;
+  }
+
+  .model-strip {
+    grid-template-columns: 1fr;
   }
 
   .hero-total > strong {

@@ -64,25 +64,6 @@
           <div class="hero-text">
             <span class="eyebrow">$VULT · investor liquidity</span>
             <h1 id="pageTitle">LP Position <span>Calculator</span></h1>
-            <p>
-              Estimate your pro-rata investor LP position, generated fees, and position multiple from any
-              investment amount.
-            </p>
-          </div>
-
-          <div class="hero-stats" aria-label="Model assumptions">
-            <div class="stat">
-              <span>Investor LP</span>
-              <strong>24.0M VULT</strong>
-            </div>
-            <div class="stat">
-              <span>Treasury excluded</span>
-              <strong>7.5M VULT</strong>
-            </div>
-            <div class="stat">
-              <span>Verified block</span>
-              <strong>25,063,863</strong>
-            </div>
           </div>
         </section>
 
@@ -141,6 +122,21 @@
               <small id="actualPriceStatus" class="price-status">
                 Actual price uses the highest-liquidity Ethereum VULT pair from DEX Screener.
               </small>
+            </div>
+
+            <div class="model-strip" aria-label="Verified model assumptions">
+              <div class="model-item">
+                <span>Investor LP</span>
+                <strong>24.0M VULT</strong>
+              </div>
+              <div class="model-item">
+                <span>Treasury excluded</span>
+                <strong>7.5M VULT</strong>
+              </div>
+              <div class="model-item">
+                <span>Verified block</span>
+                <strong>25,063,863</strong>
+              </div>
             </div>
           </form>
 
@@ -206,11 +202,18 @@
               <span class="eyebrow">Scenarios</span>
               <h2 id="scenariosTitle">LP value and fee split</h2>
             </div>
-            <span class="hint">The custom row follows the selected VULT price input.</span>
           </header>
 
           <div class="table-card">
             <table class="data-table">
+              <colgroup>
+                <col class="col-price" />
+                <col class="col-assets" />
+                <col class="col-value" />
+                <col class="col-assets" />
+                <col class="col-value" />
+                <col class="col-total" />
+              </colgroup>
               <thead>
                 <tr>
                   <th>VULT price</th>
