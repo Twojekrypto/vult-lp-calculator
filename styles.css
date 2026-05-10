@@ -567,20 +567,6 @@ table {
   pointer-events: none;
 }
 
-.price-status {
-  min-height: 18px;
-  color: var(--text-mute);
-  font-size: 12px;
-}
-
-.price-status.ok {
-  color: var(--teal);
-}
-
-.price-status.error {
-  color: var(--neg);
-}
-
 .setup-preview {
   display: grid;
   flex: 1;

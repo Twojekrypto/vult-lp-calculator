@@ -40,7 +40,6 @@ const inputs = {
 
 const priceButtons = Array.from(document.querySelectorAll("[data-price]"));
 const actualPriceButton = $("actualPriceButton");
-const actualPriceStatus = $("actualPriceStatus");
 const dexscreenerLink = $("dexscreenerLink");
 
 const totalFeePool = {
@@ -443,12 +442,6 @@ function renderActiveShortcut(price) {
   });
 }
 
-function setActualPriceStatus(message, status = "") {
-  actualPriceStatus.textContent = message;
-  actualPriceStatus.classList.toggle("ok", status === "ok");
-  actualPriceStatus.classList.toggle("error", status === "error");
-}
-
 function setCompositionHighlight(token = null) {
   const composition = document.querySelector(".composition");
   if (!composition) return;
@@ -542,9 +535,6 @@ function pickBestPricePair(data) {
 async function useActualPrice({ silent = false } = {}) {
   actualPriceButton.classList.add("is-loading");
   actualPriceButton.disabled = true;
-  setActualPriceStatus(
-    silent ? "Loading live VULT price from DEX Screener..." : "Fetching actual VULT price from DEX Screener...",
-  );
 
   try {
     const response = await fetch(DEXSCREENER_URL, { cache: "no-store" });
@@ -565,10 +555,10 @@ async function useActualPrice({ silent = false } = {}) {
       dexscreenerLink.href = pair.url;
     }
     update();
-    const statusPrefix = silent ? "Live price loaded" : "Actual price set";
-    setActualPriceStatus(`${statusPrefix} to ${formatMoney(price, 4)} from the highest-liquidity Ethereum pair.`, "ok");
   } catch (error) {
-    setActualPriceStatus("Could not fetch actual price. Please enter the price manually.", "error");
+    if (!silent) {
+      inputs.customPrice.focus();
+    }
   } finally {
     actualPriceButton.classList.remove("is-loading");
     actualPriceButton.disabled = false;
@@ -603,7 +593,6 @@ $("resetButton").addEventListener("click", () => {
   inputs.entryPrice.value = DEFAULTS.entryPrice.toFixed(2);
   inputs.customPrice.value = DEFAULTS.customPrice;
   dexscreenerLink.href = DEXSCREENER_CHART_URL;
-  setActualPriceStatus("Actual price uses the highest-liquidity Ethereum VULT pair from DEX Screener.");
   update();
 });
 
