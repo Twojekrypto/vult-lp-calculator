@@ -243,10 +243,12 @@ function renderTable(state) {
   ];
 
   $("resultsBody").innerHTML = rows
-    .map(
-      (row) => `
-        <tr class="${row.isCustom ? "row-custom" : ""}">
-          <td data-label="VULT price">
+    .map((row) => {
+      const rangeRows = POSITIONS.map((position) => rangeRowForPrice(position, row, state)).join("");
+
+      return `
+        <tr class="scenario-row ${row.isCustom ? "row-custom" : ""}">
+          <td data-label="Scenario / range">
             <div class="cell-price">
               <strong>${row.label}</strong>
               <small>${row.isCustom ? "selected input" : "scenario"}</small>
@@ -271,8 +273,9 @@ function renderTable(state) {
             <small>${row.multiple.toFixed(2)}x</small>
           </td>
         </tr>
-      `,
-    )
+        ${rangeRows}
+      `;
+    })
     .join("");
 }
 
@@ -288,73 +291,76 @@ function rangeSnapshot(position, price, share = 1) {
   };
 }
 
-function scenarioPriceColumns(state) {
-  return [
-    { label: "Selected", sublabel: formatMoney(state.customPrice, 4), price: state.customPrice, isCustom: true },
-    ...SCENARIOS.map((price) => ({ label: formatMoney(price, 2), sublabel: "scenario", price })),
-  ];
-}
-
-function renderRangeMatrixCell(position, column, state) {
-  const snapshot = rangeSnapshot(position, column.price, state.share);
-  const inRange = column.price >= position.low && column.price < position.high;
+function rangeRowForPrice(position, row, state) {
+  const lp = rangeSnapshot(position, row.price, state.share);
+  const feeUsdc = (position.unclaimedFeeUsdc ?? 0) * state.share;
+  const feeVult = (position.unclaimedFeeVult ?? 0) * state.share;
+  const feeValue = feeUsdc + feeVult * row.price;
+  const total = lp.value + feeValue;
+  const inRange = row.price >= position.low && row.price < position.high;
 
   return `
-    <span class="range-matrix-cell ${column.isCustom ? "is-custom" : ""} ${inRange ? "is-in-range" : ""}">
-      <span class="range-matrix-price">${column.label}</span>
-      <strong>${formatMoney(snapshot.value)}</strong>
-      <small>
-        ${tokenAmount(snapshot.usdc, "usdc")}
-        <span class="asset-separator">+</span>
-        ${tokenAmount(snapshot.vult, "vult")}
-      </small>
-    </span>
+    <tr
+      class="range-detail-row ${inRange ? "is-in-range" : ""}"
+      data-href="${uniswapPositionUrl(position.nftId)}"
+      tabindex="0"
+      role="link"
+      aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
+    >
+      <td data-label="Scenario / range">
+        <div class="cell-price range-cell-price">
+          <a
+            class="range-table-link"
+            href="${uniswapPositionUrl(position.nftId)}"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
+          >
+            <strong>${position.range}</strong>
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+          <small>NFT #${position.nftId} · ${row.label}</small>
+        </div>
+      </td>
+      <td data-label="LP assets">
+        <div class="cell-stack">
+          <strong>${tokenAmount(lp.usdc, "usdc")}</strong>
+          <small>${tokenAmount(lp.vult, "vult")}</small>
+        </div>
+      </td>
+      <td data-label="LP value"><span class="cell-value">${formatMoney(lp.value)}</span></td>
+      <td data-label="Fee assets">
+        <div class="cell-stack range-fee-stack">
+          <strong>${tokenAmount(feeUsdc, "usdc")}</strong>
+          <small>${tokenAmount(feeVult, "vult")}</small>
+        </div>
+      </td>
+      <td data-label="Fee value"><span class="cell-value">${formatMoney(feeValue)}</span></td>
+      <td data-label="Total" class="cell-total">
+        <strong>${formatMoney(total)}</strong>
+        <small>range</small>
+      </td>
+    </tr>
   `;
 }
 
-function renderScenarioRangeMatrix(state) {
-  const columns = scenarioPriceColumns(state);
-  const headerCells = columns
-    .map(
-      (column) => `
-        <span class="range-matrix-heading ${column.isCustom ? "is-custom" : ""}">
-          <strong>${column.label}</strong>
-          <small>${column.sublabel}</small>
-        </span>
-      `,
-    )
-    .join("");
+function bindScenarioRangeLinks() {
+  const resultsBody = $("resultsBody");
 
-  $("scenarioRangeMatrix").innerHTML = `
-    <div class="range-matrix-grid range-matrix-head" aria-hidden="true">
-      <span class="range-matrix-heading range-matrix-range">
-        <strong>LP range</strong>
-        <small>Uniswap NFT</small>
-      </span>
-      ${headerCells}
-    </div>
-    ${POSITIONS.map(
-      (position) => `
-        <a
-          class="range-matrix-grid range-matrix-row"
-          href="${uniswapPositionUrl(position.nftId)}"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
-        >
-          <span class="range-matrix-label">
-            <strong>${position.range}</strong>
-            <small>
-              NFT #${position.nftId}
-              <span class="range-dot"></span>
-              ${tokenAmount(position.vult, "vult", 0)}
-            </small>
-          </span>
-          ${columns.map((column) => renderRangeMatrixCell(position, column, state)).join("")}
-        </a>
-      `,
-    ).join("")}
-  `;
+  resultsBody.addEventListener("click", (event) => {
+    const row = event.target.closest(".range-detail-row");
+    if (!row || event.target.closest("a")) return;
+    window.location.assign(row.dataset.href);
+  });
+
+  resultsBody.addEventListener("keydown", (event) => {
+    const row = event.target.closest(".range-detail-row");
+    if (!row || !["Enter", " "].includes(event.key)) return;
+    event.preventDefault();
+    window.location.assign(row.dataset.href);
+  });
 }
 
 function renderRangeViz(state) {
@@ -552,7 +558,6 @@ function update() {
   renderSetupPreview(state);
   renderSummary(state);
   renderTable(state);
-  renderScenarioRangeMatrix(state);
   renderRangeViz(state);
   renderActiveShortcut(state.customPrice);
 }
@@ -581,5 +586,6 @@ $("resetButton").addEventListener("click", () => {
 });
 
 bindCompositionInteractions();
+bindScenarioRangeLinks();
 update();
 useActualPrice({ silent: true });

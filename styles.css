@@ -1317,223 +1317,105 @@ table {
   transform: translateX(2px) scale(1.02);
 }
 
-.range-matrix-card {
-  display: grid;
-  gap: 14px;
-  overflow: hidden;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
-    rgba(6, 15, 34, 0.44);
-  box-shadow: var(--shadow-card);
+.scenario-row td {
+  border-top: 1px solid rgba(51, 230, 191, 0.1);
 }
 
-.range-matrix-title {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
+.scenario-row:first-child td {
+  border-top: 0;
 }
 
-.range-matrix-title h3 {
-  margin: 8px 0 0;
-  color: var(--text);
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: 1.1;
+.scenario-row:not(:first-child) td {
+  padding-top: 22px;
 }
 
-.range-matrix-title > span {
-  align-self: center;
-  color: var(--text-mute);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.range-matrix {
-  display: grid;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-
-.range-matrix-grid {
-  display: grid;
-  grid-template-columns: minmax(190px, 0.82fr) repeat(5, minmax(138px, 1fr));
-  gap: 8px;
-  min-width: 1120px;
-  align-items: stretch;
-}
-
-.range-matrix-head {
-  padding: 0 8px;
-}
-
-.range-matrix-heading {
-  display: grid;
-  gap: 2px;
-  justify-items: end;
-  color: var(--text-mute);
-  font-size: 10.5px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-align: right;
-  text-transform: uppercase;
-}
-
-.range-matrix-heading strong {
-  color: var(--text-soft);
-  font-size: 11px;
-}
-
-.range-matrix-heading small {
-  font-size: 10px;
-}
-
-.range-matrix-heading.is-custom strong {
-  color: var(--teal);
-}
-
-.range-matrix-heading.range-matrix-range {
-  justify-items: start;
-  text-align: left;
-}
-
-.range-matrix-row {
-  padding: 8px;
-  border: 1px solid rgba(140, 180, 230, 0.11);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
-    rgba(6, 15, 34, 0.36);
+.range-detail-row {
+  background: rgba(6, 15, 34, 0.28);
+  cursor: pointer;
   outline: 0;
-  transition:
-    border-color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
 }
 
-.range-matrix-row:hover,
-.range-matrix-row:focus-visible {
-  border-color: rgba(51, 230, 191, 0.24);
-  background: rgba(51, 230, 191, 0.05);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
-  transform: translateY(-1px);
+.range-detail-row td {
+  padding: 10px 18px;
+  border-bottom-color: rgba(140, 180, 230, 0.065);
+  color: var(--text-soft);
+  font-size: 13px;
 }
 
-.range-matrix-label,
-.range-matrix-cell {
-  min-width: 0;
-  border-radius: var(--radius-sm);
-}
-
-.range-matrix-label {
-  display: grid;
-  gap: 6px;
-  align-content: center;
-  padding: 10px 8px;
-  color: var(--text);
-}
-
-.range-matrix-label strong {
-  overflow: hidden;
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12.5px;
-  font-weight: 900;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.range-matrix-label small {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-mute);
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.range-dot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--text-faint);
-}
-
-.range-matrix-cell {
+.range-detail-row td:first-child {
   position: relative;
-  display: grid;
-  gap: 4px;
-  justify-items: end;
-  overflow: hidden;
-  padding: 10px;
-  border: 1px solid rgba(140, 180, 230, 0.1);
-  background: rgba(6, 15, 34, 0.3);
-  text-align: right;
+  padding-left: 34px;
 }
 
-.range-matrix-cell::before {
+.range-detail-row td:first-child::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 2px;
-  background: transparent;
+  top: 50%;
+  left: 18px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(51, 230, 191, 0.5);
+  border-radius: 50%;
+  background: rgba(51, 230, 191, 0.12);
+  transform: translateY(-50%);
 }
 
-.range-matrix-cell.is-custom {
-  border-color: rgba(51, 230, 191, 0.2);
-  background: rgba(51, 230, 191, 0.045);
+.range-detail-row.is-in-range {
+  background:
+    linear-gradient(90deg, rgba(51, 230, 191, 0.07), rgba(79, 139, 255, 0.035)),
+    rgba(6, 15, 34, 0.32);
 }
 
-.range-matrix-cell.is-in-range::before {
-  background: var(--grad-brand);
-  box-shadow: 0 0 16px rgba(51, 230, 191, 0.35);
+.range-detail-row.is-in-range td:first-child::before {
+  background: var(--teal);
+  box-shadow: 0 0 16px rgba(51, 230, 191, 0.44);
 }
 
-.range-matrix-row:hover .range-matrix-cell,
-.range-matrix-row:focus-visible .range-matrix-cell {
-  border-color: rgba(140, 180, 230, 0.16);
+.range-detail-row:hover,
+.range-detail-row:focus-visible {
+  background: rgba(51, 230, 191, 0.055);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  transform: scale(1.003);
 }
 
-.range-matrix-price {
-  color: var(--text-mute);
-  font-size: 10.5px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.range-detail-row .cell-price {
+  gap: 3px;
 }
 
-.range-matrix-cell strong {
-  color: var(--text);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
-  font-weight: 900;
+.range-detail-row .cell-price small,
+.range-detail-row .cell-stack small,
+.range-detail-row .cell-total small {
+  font-size: 11px;
 }
 
-.range-matrix-cell.is-custom strong {
-  color: var(--teal);
-}
-
-.range-matrix-cell small {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 5px;
+.range-table-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--text-soft);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10.5px;
-  font-weight: 800;
+  transition: color 160ms ease;
 }
 
-.range-matrix-cell .token-icon,
-.range-matrix-label .token-icon {
-  width: 15px;
-  height: 15px;
+.range-table-link strong {
+  font: inherit;
+}
+
+.range-table-link svg {
+  width: 10px;
+  height: 10px;
+  color: var(--teal);
+  opacity: 0.78;
+}
+
+.range-table-link:hover,
+.range-table-link:focus-visible,
+.range-detail-row:hover .range-table-link,
+.range-detail-row:focus-visible .range-table-link {
+  color: var(--text);
+}
+
+.range-fee-stack {
+  color: var(--text-soft);
 }
 
 .dual {
@@ -2086,57 +1968,6 @@ footer {
   .cell-stack,
   .cell-total {
     justify-items: end;
-  }
-
-  .range-matrix-card {
-    padding: 14px;
-  }
-
-  .range-matrix-title {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .range-matrix-title > span {
-    align-self: flex-start;
-  }
-
-  .range-matrix {
-    overflow: visible;
-  }
-
-  .range-matrix-head {
-    display: none;
-  }
-
-  .range-matrix-grid {
-    grid-template-columns: 1fr;
-    min-width: 0;
-  }
-
-  .range-matrix-row {
-    gap: 8px;
-    padding: 10px;
-  }
-
-  .range-matrix-label {
-    padding: 4px 2px 2px;
-  }
-
-  .range-matrix-cell {
-    grid-template-columns: minmax(82px, 0.56fr) minmax(0, 1fr);
-    justify-items: end;
-    align-items: center;
-    padding: 9px 10px;
-  }
-
-  .range-matrix-price {
-    grid-row: 1 / 3;
-    justify-self: start;
-  }
-
-  .range-matrix-cell small {
-    justify-content: flex-end;
   }
 
   .range-row {
