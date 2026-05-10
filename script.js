@@ -29,7 +29,6 @@ const POSITIONS = [
 ];
 
 const SCENARIOS = [0.3, 0.5, 0.8, 1.5, 3.0];
-const RANGE_LADDER_MARKS = [0.1, 0.3, 0.5, 0.8, 1.5, 3, 6, 10];
 
 const $ = (id) => document.getElementById(id);
 
@@ -260,34 +259,6 @@ function renderSummary(state) {
   $("barUsdc").setAttribute("aria-label", `USDC ${usdcPct.toFixed(1)}% of LP composition`);
   $("barVult").setAttribute("aria-label", `VULT ${vultPct.toFixed(1)}% of LP composition`);
   $("compositionRatio").innerHTML = `${compositionControl(usdcPct, current.lpUsdc, usdcDollar, "usdc")}${compositionControl(vultPct, current.lpVult, vultDollar, "vult")}`;
-}
-
-function ladderPositionPercent(price) {
-  const min = RANGE_LADDER_MARKS[0];
-  const max = RANGE_LADDER_MARKS[RANGE_LADDER_MARKS.length - 1];
-  const clampedPrice = Math.min(Math.max(price, min), max);
-  const minLog = Math.log(min);
-  const maxLog = Math.log(max);
-  return ((Math.log(clampedPrice) - minLog) / (maxLog - minLog)) * 100;
-}
-
-function renderRangeLadder(state) {
-  const positionPct = ladderPositionPercent(state.customPrice);
-  const activePosition = activePositionsAtPrice(state.customPrice)[0];
-
-  $("rangeLadder").innerHTML = `
-    <div class="range-ladder-head">
-      <span>Price ladder</span>
-      <strong>${activePosition ? activePosition.range : "Outside investor LP"}</strong>
-    </div>
-    <div class="range-ladder-track" style="--marker-left: ${positionPct.toFixed(2)}%">
-      <span class="range-ladder-fill" aria-hidden="true"></span>
-      <span class="range-ladder-marker" aria-hidden="true"></span>
-    </div>
-    <div class="range-ladder-labels">
-      ${RANGE_LADDER_MARKS.map((price) => `<span>${formatMoney(price, 2)}</span>`).join("")}
-    </div>
-  `;
 }
 
 function renderTable(state) {
@@ -615,7 +586,6 @@ function update() {
   renderSetupPreview(state);
   renderSummary(state);
   renderTable(state);
-  renderRangeLadder(state);
   renderRangeViz(state);
   renderActiveShortcut(state.customPrice);
 }

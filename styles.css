@@ -1168,88 +1168,6 @@ table {
   margin-top: clamp(16px, 2vw, 28px);
 }
 
-.range-ladder {
-  display: grid;
-  gap: 9px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
-    rgba(6, 15, 34, 0.42);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.012) inset;
-}
-
-.range-ladder-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.range-ladder-head span {
-  color: var(--text-mute);
-  font-size: 10.5px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.range-ladder-head strong {
-  color: var(--text-soft);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.range-ladder-track {
-  position: relative;
-  overflow: visible;
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.range-ladder-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--marker-left);
-  border-radius: inherit;
-  background: linear-gradient(90deg, rgba(72, 214, 193, 0.24), rgba(121, 166, 232, 0.18));
-}
-
-.range-ladder-marker {
-  position: absolute;
-  top: 50%;
-  left: var(--marker-left);
-  width: 18px;
-  height: 18px;
-  border: 3px solid var(--bg-1);
-  border-radius: 50%;
-  background: var(--teal);
-  box-shadow:
-    0 0 0 1px rgba(72, 214, 193, 0.42),
-    0 6px 16px rgba(0, 0, 0, 0.28);
-  transform: translate(-50%, -50%);
-}
-
-.range-ladder-labels {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 6px;
-  color: var(--text-mute);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10.5px;
-  font-weight: 800;
-}
-
-.range-ladder-labels span {
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .table-card {
   overflow: auto;
   border: 1px solid var(--border);
@@ -1965,11 +1883,6 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .range-ladder-head {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .setup-preview {
     flex: none;
     min-height: 0;
@@ -2003,11 +1916,6 @@ footer {
 
   .block-head {
     flex-direction: column;
-  }
-
-  .range-ladder-labels {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 4px;
   }
 
   .table-card {
