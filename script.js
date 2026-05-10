@@ -259,11 +259,6 @@ function renderSummary(state) {
   $("barUsdc").setAttribute("aria-label", `USDC ${usdcPct.toFixed(1)}% of LP composition`);
   $("barVult").setAttribute("aria-label", `VULT ${vultPct.toFixed(1)}% of LP composition`);
   $("compositionRatio").innerHTML = `${compositionControl(usdcPct, current.lpUsdc, usdcDollar, "usdc")}${compositionControl(vultPct, current.lpVult, vultDollar, "vult")}`;
-  $("stickyPrice").textContent = formatMoney(state.customPrice, 4);
-  $("stickyTotal").textContent = formatMoney(current.total);
-  $("stickyLpValue").textContent = formatMoney(current.lpValue);
-  $("stickyFees").textContent = formatMoney(current.feeValue);
-  $("stickyMultiple").textContent = `${current.multiple.toFixed(2)}x`;
 }
 
 function renderTable(state) {
