@@ -251,6 +251,17 @@
               <tbody id="resultsBody"></tbody>
             </table>
           </div>
+
+          <div class="range-matrix-card" aria-label="LP value split by liquidity range">
+            <header class="range-matrix-title">
+              <div>
+                <span class="eyebrow">Range split</span>
+                <h3>LP value by every liquidity range</h3>
+              </div>
+              <span>Rows open the matching Uniswap NFT.</span>
+            </header>
+            <div id="scenarioRangeMatrix" class="range-matrix" aria-label="Scenario values by LP range"></div>
+          </div>
         </section>
 
         <section class="dual" aria-label="Liquidity details">
@@ -262,7 +273,7 @@
               </div>
             </header>
             <p class="card-desc">
-              Whole LP position with generated fees, plus pro-rata USDC/VULT split across verified ranges.
+              Full NFT LP value, active NFT fee balance, and your pro-rata split across verified ranges.
             </p>
             <div id="rangeTotal" class="range-total" aria-label="Whole LP position including fees"></div>
             <div id="rangeViz" class="range-viz" aria-label="Visual liquidity map"></div>

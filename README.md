@@ -7,7 +7,9 @@ Static GitHub Pages-ready calculator for estimating an investor's pro-rata VULT 
 - Implied VULT allocation from investment amount and entry price
 - Investor LP share against `24,000,000 VULT`
 - LP USDC / VULT composition at selected VULT prices
+- LP value split across every verified Uniswap V3 liquidity range
 - Investor fee share split into USDC and VULT
+- Current full NFT LP value and active NFT fee balance per investor range
 - Total position value including generated fees
 
 Treasury LP range `$0.029974 -> $0.992432 / 7.5M VULT` is excluded.

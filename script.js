@@ -18,14 +18,14 @@ const FEE_POOL = {
 };
 
 const POSITIONS = [
-  { range: "$0.10 -> $0.30", low: 0.1, high: 0.3, vult: 577_350, tickLower: 288400, tickUpper: 299400, liquidity: 430_526_825_642_029_061, nftId: 1189436 },
-  { range: "$0.30 -> $0.50", low: 0.3, high: 0.5, vult: 258_154, tickLower: 283200, tickUpper: 288400, liquidity: 616_519_629_281_411_321, nftId: 1189439 },
-  { range: "$0.50 -> $0.80", low: 0.5, high: 0.8, vult: 395_475, tickLower: 278600, tickUpper: 283200, liquidity: 1_364_882_096_369_430_843, nftId: 1189444 },
-  { range: "$0.80 -> $1.50", low: 0.8, high: 1.5, vult: 1_500_000, tickLower: 272200, tickUpper: 278600, liquidity: 4_888_501_405_611_995_071, nftId: 1189449 },
-  { range: "$1.50 -> $3.00", low: 1.5, high: 3.0, vult: 2_500_000, tickLower: 265400, tickUpper: 272200, liquidity: 10_660_244_449_215_264_780, nftId: 1189450 },
-  { range: "$3.00 -> $6.00", low: 3.0, high: 6.0, vult: 3_500_000, tickLower: 258400, tickUpper: 265400, liquidity: 20_464_709_160_515_616_440, nftId: 1189456 },
-  { range: "$6.00 -> $10.00", low: 6.0, high: 10.0, vult: 5_000_000, tickLower: 253200, tickUpper: 258400, liquidity: 53_511_510_127_426_224_802, nftId: 1189459 },
-  { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824, nftId: 1189462 },
+  { range: "$0.10 -> $0.30", low: 0.1, high: 0.3, vult: 577_350, tickLower: 288400, tickUpper: 299400, liquidity: 430_526_825_642_029_061, nftId: 1189436, unclaimedFeeUsdc: FEE_POOL.unclaimedUsdc, unclaimedFeeVult: FEE_POOL.unclaimedVult },
+  { range: "$0.30 -> $0.50", low: 0.3, high: 0.5, vult: 258_154, tickLower: 283200, tickUpper: 288400, liquidity: 616_519_629_281_411_321, nftId: 1189439, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
+  { range: "$0.50 -> $0.80", low: 0.5, high: 0.8, vult: 395_475, tickLower: 278600, tickUpper: 283200, liquidity: 1_364_882_096_369_430_843, nftId: 1189444, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
+  { range: "$0.80 -> $1.50", low: 0.8, high: 1.5, vult: 1_500_000, tickLower: 272200, tickUpper: 278600, liquidity: 4_888_501_405_611_995_071, nftId: 1189449, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
+  { range: "$1.50 -> $3.00", low: 1.5, high: 3.0, vult: 2_500_000, tickLower: 265400, tickUpper: 272200, liquidity: 10_660_244_449_215_264_780, nftId: 1189450, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
+  { range: "$3.00 -> $6.00", low: 3.0, high: 6.0, vult: 3_500_000, tickLower: 258400, tickUpper: 265400, liquidity: 20_464_709_160_515_616_440, nftId: 1189456, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
+  { range: "$6.00 -> $10.00", low: 6.0, high: 10.0, vult: 5_000_000, tickLower: 253200, tickUpper: 258400, liquidity: 53_511_510_127_426_224_802, nftId: 1189459, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
+  { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824, nftId: 1189462, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
 ];
 
 const SCENARIOS = [0.2, 0.3, 0.5, 1.0];
@@ -276,6 +276,87 @@ function renderTable(state) {
     .join("");
 }
 
+function rangeSnapshot(position, price, share = 1) {
+  const amounts = amountsAtPrice(position, price);
+  const usdc = amounts.usdc * share;
+  const vult = amounts.vult * share;
+
+  return {
+    usdc,
+    vult,
+    value: usdc + vult * price,
+  };
+}
+
+function scenarioPriceColumns(state) {
+  return [
+    { label: "Selected", sublabel: formatMoney(state.customPrice, 4), price: state.customPrice, isCustom: true },
+    ...SCENARIOS.map((price) => ({ label: formatMoney(price, 2), sublabel: "scenario", price })),
+  ];
+}
+
+function renderRangeMatrixCell(position, column, state) {
+  const snapshot = rangeSnapshot(position, column.price, state.share);
+  const inRange = column.price >= position.low && column.price < position.high;
+
+  return `
+    <span class="range-matrix-cell ${column.isCustom ? "is-custom" : ""} ${inRange ? "is-in-range" : ""}">
+      <span class="range-matrix-price">${column.label}</span>
+      <strong>${formatMoney(snapshot.value)}</strong>
+      <small>
+        ${tokenAmount(snapshot.usdc, "usdc")}
+        <span class="asset-separator">+</span>
+        ${tokenAmount(snapshot.vult, "vult")}
+      </small>
+    </span>
+  `;
+}
+
+function renderScenarioRangeMatrix(state) {
+  const columns = scenarioPriceColumns(state);
+  const headerCells = columns
+    .map(
+      (column) => `
+        <span class="range-matrix-heading ${column.isCustom ? "is-custom" : ""}">
+          <strong>${column.label}</strong>
+          <small>${column.sublabel}</small>
+        </span>
+      `,
+    )
+    .join("");
+
+  $("scenarioRangeMatrix").innerHTML = `
+    <div class="range-matrix-grid range-matrix-head" aria-hidden="true">
+      <span class="range-matrix-heading range-matrix-range">
+        <strong>LP range</strong>
+        <small>Uniswap NFT</small>
+      </span>
+      ${headerCells}
+    </div>
+    ${POSITIONS.map(
+      (position) => `
+        <a
+          class="range-matrix-grid range-matrix-row"
+          href="${uniswapPositionUrl(position.nftId)}"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
+        >
+          <span class="range-matrix-label">
+            <strong>${position.range}</strong>
+            <small>
+              NFT #${position.nftId}
+              <span class="range-dot"></span>
+              ${tokenAmount(position.vult, "vult", 0)}
+            </small>
+          </span>
+          ${columns.map((column) => renderRangeMatrixCell(position, column, state)).join("")}
+        </a>
+      `,
+    ).join("")}
+  `;
+}
+
 function renderRangeViz(state) {
   const maxVult = Math.max(...POSITIONS.map((position) => position.vult));
   const price = state.customPrice;
@@ -309,6 +390,10 @@ function renderRangeViz(state) {
     const rangeAmounts = amountsAtPrice(position, price);
     const rangeUsdc = rangeAmounts.usdc * state.share;
     const rangeVult = rangeAmounts.vult * state.share;
+    const fullValue = rangeAmounts.usdc + rangeAmounts.vult * price;
+    const unclaimedFeeUsdc = position.unclaimedFeeUsdc ?? 0;
+    const unclaimedFeeVult = position.unclaimedFeeVult ?? 0;
+    const unclaimedFeeValue = unclaimedFeeUsdc + unclaimedFeeVult * price;
 
     return `
       <a
@@ -316,7 +401,7 @@ function renderRangeViz(state) {
         href="${uniswapPositionUrl(position.nftId)}"
         target="_blank"
         rel="noreferrer"
-        aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}, current position ${formatNumber(rangeUsdc)} USDC and ${formatNumber(rangeVult)} VULT"
+        aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}, full LP ${formatMoney(fullValue)}, active NFT fees ${formatMoney(unclaimedFeeValue)}"
       >
         <span class="range-label">
           <strong>${position.range}</strong>
@@ -333,9 +418,32 @@ function renderRangeViz(state) {
         <div class="range-bar">
           <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
         </div>
-        <span class="range-assets">
-          <span class="range-asset range-asset-usdc ${rangeUsdc <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeUsdc, "usdc")}</span>
-          <span class="range-asset range-asset-vult ${rangeVult <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeVult, "vult")}</span>
+        <span class="range-stat range-full">
+          <em>Full NFT LP</em>
+          <strong>${formatMoney(fullValue)}</strong>
+          <small>
+            ${tokenAmount(rangeAmounts.usdc, "usdc")}
+            <span class="asset-separator">+</span>
+            ${tokenAmount(rangeAmounts.vult, "vult")}
+          </small>
+        </span>
+        <span class="range-stat range-fees">
+          <em>Active NFT fees</em>
+          <strong>${formatMoney(unclaimedFeeValue)}</strong>
+          <small>
+            ${tokenAmount(unclaimedFeeUsdc, "usdc")}
+            <span class="asset-separator">+</span>
+            ${tokenAmount(unclaimedFeeVult, "vult")}
+          </small>
+        </span>
+        <span class="range-stat range-assets">
+          <em>Your share</em>
+          <strong>${formatMoney(rangeUsdc + rangeVult * price)}</strong>
+          <small>
+            <span class="range-asset range-asset-usdc ${rangeUsdc <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeUsdc, "usdc")}</span>
+            <span class="asset-separator">+</span>
+            <span class="range-asset range-asset-vult ${rangeVult <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeVult, "vult")}</span>
+          </small>
         </span>
       </a>
     `;
@@ -403,10 +511,12 @@ function pickBestPricePair(data) {
     .sort((a, b) => Number(b.liquidity?.usd ?? 0) - Number(a.liquidity?.usd ?? 0))[0];
 }
 
-async function useActualPrice() {
+async function useActualPrice({ silent = false } = {}) {
   actualPriceButton.classList.add("is-loading");
   actualPriceButton.disabled = true;
-  setActualPriceStatus("Fetching actual VULT price from DEX Screener...");
+  setActualPriceStatus(
+    silent ? "Loading live VULT price from DEX Screener..." : "Fetching actual VULT price from DEX Screener...",
+  );
 
   try {
     const response = await fetch(DEXSCREENER_URL, { cache: "no-store" });
@@ -427,10 +537,8 @@ async function useActualPrice() {
       dexscreenerLink.href = pair.url;
     }
     update();
-    setActualPriceStatus(
-      `Actual price set to ${formatMoney(price, 4)} from the highest-liquidity Ethereum pair.`,
-      "ok",
-    );
+    const statusPrefix = silent ? "Live price loaded" : "Actual price set";
+    setActualPriceStatus(`${statusPrefix} to ${formatMoney(price, 4)} from the highest-liquidity Ethereum pair.`, "ok");
   } catch (error) {
     setActualPriceStatus("Could not fetch actual price. Please enter the price manually.", "error");
   } finally {
@@ -444,6 +552,7 @@ function update() {
   renderSetupPreview(state);
   renderSummary(state);
   renderTable(state);
+  renderScenarioRangeMatrix(state);
   renderRangeViz(state);
   renderActiveShortcut(state.customPrice);
 }
@@ -473,3 +582,4 @@ $("resetButton").addEventListener("click", () => {
 
 bindCompositionInteractions();
 update();
+useActualPrice({ silent: true });
