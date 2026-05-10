@@ -29,7 +29,7 @@
   --radius-lg: 20px;
   --radius-md: 14px;
   --radius-sm: 10px;
-  --max-w: 1360px;
+  --max-w: 1440px;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -326,9 +326,9 @@ table {
 
 .core {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(430px, 1.05fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .card {
@@ -355,6 +355,14 @@ table {
 
 .card > * {
   position: relative;
+}
+
+.output {
+  justify-content: space-between;
+}
+
+.inputs .model-strip {
+  margin-top: auto;
 }
 
 .card-head,
@@ -996,14 +1004,22 @@ table {
 
 .dual {
   display: grid;
-  grid-template-columns: 1.08fr 0.92fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+  margin-top: clamp(16px, 2.2vw, 30px);
+}
+
+.dual > .card {
+  min-height: 440px;
 }
 
 .range-viz {
   display: grid;
   gap: 10px;
+  flex: 1;
+  align-content: space-between;
+  grid-auto-rows: minmax(0, 1fr);
 }
 
 .range-row {
@@ -1060,7 +1076,9 @@ table {
 
 .constants {
   display: grid;
+  flex: 1;
   gap: 1px;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -1073,6 +1091,7 @@ table {
 .constants li {
   display: grid;
   gap: 6px;
+  align-content: center;
   padding: 15px;
   background: rgba(6, 15, 34, 0.46);
 }
@@ -1304,6 +1323,17 @@ footer {
     gap: 6px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
+  }
+
+  .range-viz,
+  .constants {
+    flex: none;
+    grid-auto-rows: auto;
+    grid-template-rows: none;
+  }
+
+  .constants li {
+    align-content: initial;
   }
 
   .range-row:last-child {

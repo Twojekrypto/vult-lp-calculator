@@ -3,7 +3,7 @@ const VULT_TOKEN_ADDRESS = "0xb788144DF611029C60b859DF47e79B7726C4DEBa";
 const DEXSCREENER_URL = `https://api.dexscreener.com/latest/dex/tokens/${VULT_TOKEN_ADDRESS}`;
 
 const DEFAULTS = {
-  investmentAmount: 10_000,
+  investmentAmount: 1_000,
   entryPrice: 0.1,
   customPrice: 0.185916877469,
 };
