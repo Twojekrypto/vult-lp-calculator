@@ -253,7 +253,7 @@ table {
 .hero h1,
 .card-head h2,
 .card-head h3,
-.block-head h2 {
+.table-card-head h2 {
   margin: 0;
   letter-spacing: 0;
   line-height: 1.05;
@@ -370,7 +370,7 @@ table {
 }
 
 .card-head,
-.block-head {
+.table-card-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -384,7 +384,7 @@ table {
 }
 
 .card-head h3,
-.block-head h2 {
+.table-card-head h2 {
   margin-top: 8px;
   font-size: 20px;
   font-weight: 800;
@@ -1169,11 +1169,23 @@ table {
 }
 
 .table-card {
-  overflow: auto;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: rgba(6, 15, 34, 0.54);
   box-shadow: var(--shadow-card);
+}
+
+.table-card-head {
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.024), transparent),
+    rgba(15, 29, 56, 0.34);
+}
+
+.table-scroll {
+  overflow: auto;
 }
 
 .data-table {
@@ -1874,7 +1886,7 @@ footer {
   }
 
   .card-head,
-  .block-head {
+  .table-card-head {
     align-items: flex-start;
   }
 
@@ -1914,7 +1926,7 @@ footer {
     grid-column: auto;
   }
 
-  .block-head {
+  .table-card-head {
     flex-direction: column;
   }
 
@@ -1923,6 +1935,18 @@ footer {
     border: 0;
     background: transparent;
     box-shadow: none;
+  }
+
+  .table-card-head {
+    margin-bottom: 10px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(6, 15, 34, 0.5);
+  }
+
+  .table-scroll {
+    overflow: visible;
   }
 
   .data-table {

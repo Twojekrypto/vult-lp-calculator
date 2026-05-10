@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260510-ladderless" />
+    <link rel="stylesheet" href="./styles.css?v=20260510-tablehead" />
   </head>
   <body>
     <div class="ambient-glow" aria-hidden="true">
@@ -221,37 +221,39 @@
         </section>
 
         <section class="block" aria-labelledby="scenariosTitle">
-          <header class="block-head">
-            <div>
-              <span class="eyebrow">Scenarios</span>
-              <h2 id="scenariosTitle">LP value and fee split</h2>
-            </div>
-          </header>
-
           <div class="table-card">
-            <table class="data-table">
-              <colgroup>
-                <col class="col-price" />
-                <col class="col-range" />
-                <col class="col-assets" />
-                <col class="col-value" />
-                <col class="col-assets" />
-                <col class="col-value" />
-                <col class="col-total" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>VULT price</th>
-                  <th>Active LP range</th>
-                  <th>LP assets</th>
-                  <th>LP value</th>
-                  <th>Fee assets</th>
-                  <th>Fee value</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody id="resultsBody"></tbody>
-            </table>
+            <header class="table-card-head">
+              <div>
+                <span class="eyebrow">Scenarios</span>
+                <h2 id="scenariosTitle">LP value and fee split</h2>
+              </div>
+            </header>
+
+            <div class="table-scroll">
+              <table class="data-table">
+                <colgroup>
+                  <col class="col-price" />
+                  <col class="col-range" />
+                  <col class="col-assets" />
+                  <col class="col-value" />
+                  <col class="col-assets" />
+                  <col class="col-value" />
+                  <col class="col-total" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>VULT price</th>
+                    <th>Active LP range</th>
+                    <th>LP assets</th>
+                    <th>LP value</th>
+                    <th>Fee assets</th>
+                    <th>Fee value</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -335,6 +337,6 @@
       </footer>
     </div>
 
-    <script src="./script.js?v=20260510-ladderless"></script>
+    <script src="./script.js?v=20260510-tablehead"></script>
   </body>
 </html>
