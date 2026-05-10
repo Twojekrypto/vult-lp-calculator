@@ -147,7 +147,9 @@
                 <h2>Position summary</h2>
               </div>
               <div class="price-pill">
-                <span>VULT</span>
+                <span class="price-token" aria-label="VULT token">
+                  <span class="token-icon token-vult" aria-hidden="true"></span>
+                </span>
                 <strong id="activePrice">$0.00</strong>
               </div>
             </header>
@@ -165,16 +167,16 @@
               <div class="metric">
                 <span class="metric-label"><span class="dot dot-teal"></span>LP value</span>
                 <strong id="currentLpValue">$0.00</strong>
-                <small id="lpBreakdown">0 USDC · 0 VULT</small>
+                <small id="lpBreakdown"></small>
               </div>
               <div class="metric">
                 <span class="metric-label"><span class="dot dot-gold"></span>Generated fees</span>
                 <strong id="feeValue">$0.00</strong>
-                <small id="feeSplit">0 USDC · 0 VULT</small>
+                <small id="feeSplit"></small>
               </div>
               <div class="metric metric-wide">
                 <span class="metric-label"><span class="dot dot-blue"></span>Your allocation</span>
-                <strong id="allocation">0 VULT</strong>
+                <strong id="allocation"></strong>
                 <small id="share">0.000000% of investor LP</small>
               </div>
             </div>
@@ -182,15 +184,15 @@
             <div class="composition">
               <div class="composition-head">
                 <span>LP composition at selected price</span>
-                <span id="compositionRatio">0% USDC · 0% VULT</span>
+                <span id="compositionRatio"></span>
               </div>
               <div class="composition-bar" aria-hidden="true">
                 <div id="barUsdc" class="bar-segment bar-usdc" style="width: 50%"></div>
                 <div id="barVult" class="bar-segment bar-vult" style="width: 50%"></div>
               </div>
               <div class="composition-legend">
-                <span><span class="dot dot-teal"></span>USDC</span>
-                <span><span class="dot dot-blue"></span>VULT</span>
+                <span aria-label="USDC"><span class="token-icon token-usdc" aria-hidden="true"></span></span>
+                <span aria-label="VULT"><span class="token-icon token-vult" aria-hidden="true"></span></span>
               </div>
             </div>
           </aside>
@@ -254,15 +256,45 @@
             <ul class="constants">
               <li>
                 <span>Historical investor fees</span>
-                <strong>89,214.93 USDC <em>+</em> 319,966.26 VULT</strong>
+                <strong class="token-pair">
+                  <span class="token-amount token-amount-usdc" aria-label="89,214.93 USDC">
+                    <span class="token-number">89,214.93</span>
+                    <span class="token-icon token-usdc" aria-hidden="true"></span>
+                  </span>
+                  <em>+</em>
+                  <span class="token-amount token-amount-vult" aria-label="319,966.26 VULT">
+                    <span class="token-number">319,966.26</span>
+                    <span class="token-icon token-vult" aria-hidden="true"></span>
+                  </span>
+                </strong>
               </li>
               <li>
                 <span>Unclaimed active fees</span>
-                <strong>9,569.50 USDC <em>+</em> 50,097.98 VULT</strong>
+                <strong class="token-pair">
+                  <span class="token-amount token-amount-usdc" aria-label="9,569.50 USDC">
+                    <span class="token-number">9,569.50</span>
+                    <span class="token-icon token-usdc" aria-hidden="true"></span>
+                  </span>
+                  <em>+</em>
+                  <span class="token-amount token-amount-vult" aria-label="50,097.98 VULT">
+                    <span class="token-number">50,097.98</span>
+                    <span class="token-icon token-vult" aria-hidden="true"></span>
+                  </span>
+                </strong>
               </li>
               <li class="highlight">
                 <span>Total investor fee pool</span>
-                <strong>98,784.42 USDC <em>+</em> 370,064.24 VULT</strong>
+                <strong class="token-pair">
+                  <span class="token-amount token-amount-usdc" aria-label="98,784.42 USDC">
+                    <span class="token-number">98,784.42</span>
+                    <span class="token-icon token-usdc" aria-hidden="true"></span>
+                  </span>
+                  <em>+</em>
+                  <span class="token-amount token-amount-vult" aria-label="370,064.24 VULT">
+                    <span class="token-number">370,064.24</span>
+                    <span class="token-icon token-vult" aria-hidden="true"></span>
+                  </span>
+                </strong>
               </li>
               <li>
                 <span>Treasury LP</span>

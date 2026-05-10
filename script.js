@@ -113,6 +113,34 @@ function formatInputPrice(price) {
   return fixed.replace(/0+$/, "").replace(/\.$/, "");
 }
 
+function tokenIcon(symbol) {
+  const token = symbol.toLowerCase();
+  const label = symbol.toUpperCase();
+  return `<span class="token-icon token-${token}" aria-hidden="true"></span><span class="sr-only">${label}</span>`;
+}
+
+function tokenAmount(value, symbol, maximumFractionDigits = 2) {
+  const formatted = formatNumber(value, maximumFractionDigits);
+  const label = symbol.toUpperCase();
+  return `
+    <span class="token-amount token-amount-${symbol.toLowerCase()}" aria-label="${formatted} ${label}">
+      <span class="token-number">${formatted}</span>
+      ${tokenIcon(symbol)}
+    </span>
+  `;
+}
+
+function tokenPercent(value, symbol) {
+  const formatted = `${value.toFixed(1)}%`;
+  const label = symbol.toUpperCase();
+  return `
+    <span class="token-amount token-percent" aria-label="${formatted} ${label}">
+      <span class="token-number">${formatted}</span>
+      ${tokenIcon(symbol)}
+    </span>
+  `;
+}
+
 function getState() {
   const investmentAmount = safeNumber(inputs.investmentAmount.value, DEFAULTS.investmentAmount);
   const entryPrice = safeNumber(inputs.entryPrice.value, DEFAULTS.entryPrice);
@@ -169,16 +197,16 @@ function renderSummary(state) {
   $("currentTotal").textContent = formatMoney(current.total);
   $("currentMultiple").textContent = `${current.multiple.toFixed(2)}x multiple`;
   $("currentLpValue").textContent = formatMoney(current.lpValue);
-  $("lpBreakdown").textContent = `${formatNumber(current.lpUsdc, 2)} USDC · ${formatNumber(current.lpVult, 2)} VULT`;
-  $("allocation").textContent = `${formatNumber(state.allocation, 2)} VULT`;
+  $("lpBreakdown").innerHTML = `${tokenAmount(current.lpUsdc, "usdc")}<span class="asset-separator">·</span>${tokenAmount(current.lpVult, "vult")}`;
+  $("allocation").innerHTML = tokenAmount(state.allocation, "vult");
   $("share").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
   $("feeValue").textContent = formatMoney(current.feeValue);
-  $("feeSplit").textContent = `${formatNumber(state.feeUsdc, 2)} USDC · ${formatNumber(state.feeVult, 2)} VULT`;
+  $("feeSplit").innerHTML = `${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">·</span>${tokenAmount(state.feeVult, "vult")}`;
   $("pnlPill").textContent = `${pnlSign}${formatMoney(Math.abs(pnl))} (${pnlSign}${Math.abs(pnlPct).toFixed(1)}%)`;
   $("pnlPill").classList.toggle("neg", pnl < 0);
   $("barUsdc").style.width = `${usdcPct.toFixed(2)}%`;
   $("barVult").style.width = `${vultPct.toFixed(2)}%`;
-  $("compositionRatio").textContent = `${usdcPct.toFixed(1)}% USDC · ${vultPct.toFixed(1)}% VULT`;
+  $("compositionRatio").innerHTML = `${tokenPercent(usdcPct, "usdc")}<span class="asset-separator">·</span>${tokenPercent(vultPct, "vult")}`;
 }
 
 function renderTable(state) {
@@ -199,15 +227,15 @@ function renderTable(state) {
           </td>
           <td data-label="LP assets">
             <div class="cell-stack">
-              <strong>${formatNumber(row.lpUsdc, 2)} USDC</strong>
-              <small>${formatNumber(row.lpVult, 2)} VULT</small>
+              <strong>${tokenAmount(row.lpUsdc, "usdc")}</strong>
+              <small>${tokenAmount(row.lpVult, "vult")}</small>
             </div>
           </td>
           <td data-label="LP value">${formatMoney(row.lpValue)}</td>
           <td data-label="Fee assets">
             <div class="cell-stack">
-              <strong>${formatNumber(row.feeUsdc, 2)} USDC</strong>
-              <small>${formatNumber(row.feeVult, 2)} VULT</small>
+              <strong>${tokenAmount(row.feeUsdc, "usdc")}</strong>
+              <small>${tokenAmount(row.feeVult, "vult")}</small>
             </div>
           </td>
           <td data-label="Fee value">${formatMoney(row.feeValue)}</td>

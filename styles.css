@@ -89,6 +89,18 @@ table {
   border-collapse: collapse;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .ambient-glow {
   position: fixed;
   inset: 0;
@@ -576,12 +588,17 @@ table {
   text-align: right;
 }
 
-.price-pill span {
+.price-pill > span {
   color: var(--text-mute);
   font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.price-pill .price-token {
+  justify-self: end;
+  line-height: 1;
 }
 
 .price-pill strong {
@@ -687,6 +704,18 @@ table {
   font-size: 13px;
 }
 
+#lpBreakdown,
+#feeSplit {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+#allocation .token-amount {
+  gap: 8px;
+}
+
 #feeValue {
   color: var(--gold);
 }
@@ -714,6 +743,92 @@ table {
   background: var(--gold);
 }
 
+.token-amount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.token-number {
+  min-width: 0;
+}
+
+.token-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(51, 230, 191, 0.16);
+  vertical-align: -3px;
+}
+
+.token-usdc {
+  border: 1px solid rgba(134, 186, 255, 0.7);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.55), transparent 25%),
+    linear-gradient(135deg, #2775ca 0%, #4f8bff 100%);
+  color: #fff;
+}
+
+.token-usdc::before {
+  content: "$";
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.token-usdc::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: inherit;
+}
+
+.token-vult {
+  border: 1px solid rgba(51, 230, 191, 0.52);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(51, 230, 191, 0.24), transparent 32%),
+    rgba(6, 15, 34, 0.86);
+}
+
+.token-vult::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: url("./assets/vultisig-logo.svg") center / contain no-repeat;
+}
+
+.token-percent {
+  gap: 5px;
+}
+
+.asset-separator {
+  color: var(--text-faint);
+  font-weight: 800;
+}
+
+.metric strong .token-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.metric strong .token-vult::before {
+  width: 15px;
+  height: 15px;
+}
+
 .composition {
   display: grid;
   gap: 10px;
@@ -729,7 +844,11 @@ table {
   font-weight: 700;
 }
 
-.composition-head span:last-child {
+.composition-head > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
   color: var(--text-soft);
   text-align: right;
 }
@@ -874,6 +993,17 @@ table {
   font-weight: 700;
 }
 
+.cell-stack strong,
+.cell-stack small {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cell-stack .token-icon {
+  width: 17px;
+  height: 17px;
+}
+
 .cell-total strong {
   color: var(--text);
 }
@@ -964,7 +1094,7 @@ table {
   background: rgba(51, 230, 191, 0.055);
 }
 
-.constants span {
+.constants li > span {
   color: var(--text-mute);
   font-size: 12px;
   font-weight: 800;
@@ -977,6 +1107,17 @@ table {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
   font-weight: 800;
+}
+
+.constants .token-pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.constants .token-amount {
+  color: var(--text);
 }
 
 .constants em {
