@@ -122,22 +122,29 @@ function tokenIcon(symbol) {
 function tokenAmount(value, symbol, maximumFractionDigits = 2) {
   const formatted = formatNumber(value, maximumFractionDigits);
   const label = symbol.toUpperCase();
+  const token = symbol.toLowerCase();
   return `
-    <span class="token-amount token-amount-${symbol.toLowerCase()}" aria-label="${formatted} ${label}">
+    <span class="token-amount token-amount-${token}" data-token="${token}" aria-label="${formatted} ${label}">
       <span class="token-number">${formatted}</span>
       ${tokenIcon(symbol)}
     </span>
   `;
 }
 
-function tokenPercent(value, symbol) {
+function compositionControl(value, symbol) {
   const formatted = `${value.toFixed(1)}%`;
   const label = symbol.toUpperCase();
+  const token = symbol.toLowerCase();
   return `
-    <span class="token-amount token-percent" aria-label="${formatted} ${label}">
+    <button
+      type="button"
+      class="token-trigger composition-chip token-trigger-${token}"
+      data-token="${token}"
+      aria-label="Highlight ${label}, ${formatted} of LP composition"
+    >
       <span class="token-number">${formatted}</span>
       ${tokenIcon(symbol)}
-    </span>
+    </button>
   `;
 }
 
@@ -206,7 +213,9 @@ function renderSummary(state) {
   $("pnlPill").classList.toggle("neg", pnl < 0);
   $("barUsdc").style.width = `${usdcPct.toFixed(2)}%`;
   $("barVult").style.width = `${vultPct.toFixed(2)}%`;
-  $("compositionRatio").innerHTML = `${tokenPercent(usdcPct, "usdc")}<span class="asset-separator">·</span>${tokenPercent(vultPct, "vult")}`;
+  $("barUsdc").setAttribute("aria-label", `USDC ${usdcPct.toFixed(1)}% of LP composition`);
+  $("barVult").setAttribute("aria-label", `VULT ${vultPct.toFixed(1)}% of LP composition`);
+  $("compositionRatio").innerHTML = `${compositionControl(usdcPct, "usdc")}<span class="asset-separator">·</span>${compositionControl(vultPct, "vult")}`;
 }
 
 function renderTable(state) {
@@ -258,7 +267,7 @@ function renderRangeViz(state) {
     const widthPct = (position.vult / maxVult) * 100;
 
     return `
-      <div class="range-row">
+      <div class="range-row" tabindex="0" aria-label="${position.range}, ${formatNumber(position.vult, 0)} VULT">
         <span class="range-label">${position.range}</span>
         <div class="range-bar">
           <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
@@ -281,6 +290,46 @@ function setActualPriceStatus(message, status = "") {
   actualPriceStatus.textContent = message;
   actualPriceStatus.classList.toggle("ok", status === "ok");
   actualPriceStatus.classList.toggle("error", status === "error");
+}
+
+function setCompositionHighlight(token = null) {
+  const composition = document.querySelector(".composition");
+  if (!composition) return;
+  composition.classList.toggle("is-highlight-usdc", token === "usdc");
+  composition.classList.toggle("is-highlight-vult", token === "vult");
+}
+
+function bindCompositionInteractions() {
+  const composition = document.querySelector(".composition");
+  if (!composition) return;
+
+  composition.addEventListener("pointerover", (event) => {
+    const target = event.target.closest("[data-token]");
+    if (target && composition.contains(target)) {
+      setCompositionHighlight(target.dataset.token);
+    }
+  });
+
+  composition.addEventListener("pointerout", (event) => {
+    const nextTarget = event.relatedTarget?.closest?.("[data-token]");
+    if (!nextTarget || !composition.contains(nextTarget)) {
+      setCompositionHighlight();
+    }
+  });
+
+  composition.addEventListener("focusin", (event) => {
+    const target = event.target.closest("[data-token]");
+    if (target && composition.contains(target)) {
+      setCompositionHighlight(target.dataset.token);
+    }
+  });
+
+  composition.addEventListener("focusout", (event) => {
+    const nextTarget = event.relatedTarget?.closest?.("[data-token]");
+    if (!nextTarget || !composition.contains(nextTarget)) {
+      setCompositionHighlight();
+    }
+  });
 }
 
 function pickBestPricePair(data) {
@@ -353,4 +402,5 @@ $("resetButton").addEventListener("click", () => {
   update();
 });
 
+bindCompositionInteractions();
 update();

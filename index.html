@@ -182,16 +182,12 @@
             <div class="composition">
               <div class="composition-head">
                 <span>LP composition at selected price</span>
-                <span id="compositionRatio"></span>
               </div>
-              <div class="composition-bar" aria-hidden="true">
-                <div id="barUsdc" class="bar-segment bar-usdc" style="width: 50%"></div>
-                <div id="barVult" class="bar-segment bar-vult" style="width: 50%"></div>
+              <div class="composition-bar" role="group" aria-label="LP composition chart">
+                <div id="barUsdc" class="bar-segment bar-usdc" data-token="usdc" tabindex="0" style="width: 50%"></div>
+                <div id="barVult" class="bar-segment bar-vult" data-token="vult" tabindex="0" style="width: 50%"></div>
               </div>
-              <div class="composition-legend">
-                <span aria-label="USDC"><span class="token-icon token-usdc" aria-hidden="true"></span></span>
-                <span aria-label="VULT"><span class="token-icon token-vult" aria-hidden="true"></span></span>
-              </div>
+              <div id="compositionRatio" class="composition-breakdown" aria-label="LP composition percentages"></div>
             </div>
           </aside>
         </section>
