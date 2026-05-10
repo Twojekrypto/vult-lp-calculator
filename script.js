@@ -131,8 +131,9 @@ function tokenAmount(value, symbol, maximumFractionDigits = 2) {
   `;
 }
 
-function compositionControl(value, symbol) {
-  const formatted = `${value.toFixed(1)}%`;
+function compositionControl(percent, amount, valueUsd, symbol) {
+  const formattedPercent = `${percent.toFixed(1)}%`;
+  const formattedAmount = formatNumber(amount, 2);
   const label = symbol.toUpperCase();
   const token = symbol.toLowerCase();
   return `
@@ -140,10 +141,13 @@ function compositionControl(value, symbol) {
       type="button"
       class="token-trigger composition-chip token-trigger-${token}"
       data-token="${token}"
-      aria-label="Highlight ${label}, ${formatted} of LP composition"
+      aria-label="Highlight ${label}, ${formattedAmount} ${label}, ${formattedPercent} of LP composition"
     >
-      <span class="token-number">${formatted}</span>
-      ${tokenIcon(symbol)}
+      <span class="composition-chip-main">
+        <span class="token-number">${formattedAmount}</span>
+        ${tokenIcon(symbol)}
+      </span>
+      <span class="composition-chip-sub">${formattedPercent} · ${formatMoney(valueUsd)}</span>
     </button>
   `;
 }
@@ -215,7 +219,7 @@ function renderSummary(state) {
   $("barVult").style.width = `${vultPct.toFixed(2)}%`;
   $("barUsdc").setAttribute("aria-label", `USDC ${usdcPct.toFixed(1)}% of LP composition`);
   $("barVult").setAttribute("aria-label", `VULT ${vultPct.toFixed(1)}% of LP composition`);
-  $("compositionRatio").innerHTML = `${compositionControl(usdcPct, "usdc")}<span class="asset-separator">·</span>${compositionControl(vultPct, "vult")}`;
+  $("compositionRatio").innerHTML = `${compositionControl(usdcPct, current.lpUsdc, usdcDollar, "usdc")}${compositionControl(vultPct, current.lpVult, vultDollar, "vult")}`;
 }
 
 function renderTable(state) {
@@ -265,14 +269,27 @@ function renderRangeViz(state) {
   $("rangeViz").innerHTML = POSITIONS.map((position) => {
     const inRange = price >= position.low && price < position.high;
     const widthPct = (position.vult / maxVult) * 100;
+    const rangeAmounts = amountsAtPrice(position, price);
+    const rangeUsdc = rangeAmounts.usdc * state.share;
+    const rangeVult = rangeAmounts.vult * state.share;
 
     return `
-      <div class="range-row" tabindex="0" aria-label="${position.range}, ${formatNumber(position.vult, 0)} VULT">
-        <span class="range-label">${position.range}</span>
+      <div
+        class="range-row ${inRange ? "is-current" : ""}"
+        tabindex="0"
+        aria-label="${position.range}, current position ${formatNumber(rangeUsdc)} USDC and ${formatNumber(rangeVult)} VULT"
+      >
+        <span class="range-label">
+          <strong>${position.range}</strong>
+          <small>${tokenAmount(position.vult, "vult", 0)} range</small>
+        </span>
         <div class="range-bar">
           <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
         </div>
-        <span class="range-vult">${tokenAmount(position.vult, "vult", 0)}</span>
+        <span class="range-assets">
+          <span class="range-asset range-asset-usdc ${rangeUsdc <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeUsdc, "usdc")}</span>
+          <span class="range-asset range-asset-vult ${rangeVult <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeVult, "vult")}</span>
+        </span>
       </div>
     `;
   }).join("");
