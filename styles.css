@@ -1414,7 +1414,9 @@ table {
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: rgba(6, 15, 34, 0.18);
+  color: inherit;
   outline: 0;
+  text-decoration: none;
   transition:
     border-color 160ms ease,
     background 160ms ease,
@@ -1450,6 +1452,25 @@ table {
   gap: 6px;
   color: var(--text-mute);
   font-size: 11px;
+}
+
+.range-meta {
+  flex-wrap: wrap;
+}
+
+.range-nft {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--teal);
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 900;
+}
+
+.range-nft svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0.72;
 }
 
 .range-bar {
@@ -1510,6 +1531,11 @@ table {
   background: rgba(51, 230, 191, 0.055);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
   transform: translateY(-1px);
+}
+
+.range-row:hover .range-nft,
+.range-row:focus-visible .range-nft {
+  color: var(--text);
 }
 
 .range-assets {

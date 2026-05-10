@@ -2,6 +2,7 @@ const TOTAL_INVESTOR_VULT = 24_000_000;
 const VULT_TOKEN_ADDRESS = "0xb788144DF611029C60b859DF47e79B7726C4DEBa";
 const DEXSCREENER_URL = `https://api.dexscreener.com/latest/dex/tokens/${VULT_TOKEN_ADDRESS}`;
 const DEXSCREENER_CHART_URL = "https://dexscreener.com/ethereum/0x6df52cc6e2e6f6531e4ceb4b083cf49864a89020";
+const UNISWAP_POSITION_BASE_URL = "https://app.uniswap.org/positions/v3/ethereum";
 
 const DEFAULTS = {
   investmentAmount: 1_000,
@@ -17,14 +18,14 @@ const FEE_POOL = {
 };
 
 const POSITIONS = [
-  { range: "$0.10 -> $0.30", low: 0.1, high: 0.3, vult: 577_350, tickLower: 288400, tickUpper: 299400, liquidity: 430_526_825_642_029_061 },
-  { range: "$0.30 -> $0.50", low: 0.3, high: 0.5, vult: 258_154, tickLower: 283200, tickUpper: 288400, liquidity: 616_519_629_281_411_321 },
-  { range: "$0.50 -> $0.80", low: 0.5, high: 0.8, vult: 395_475, tickLower: 278600, tickUpper: 283200, liquidity: 1_364_882_096_369_430_843 },
-  { range: "$0.80 -> $1.50", low: 0.8, high: 1.5, vult: 1_500_000, tickLower: 272200, tickUpper: 278600, liquidity: 4_888_501_405_611_995_071 },
-  { range: "$1.50 -> $3.00", low: 1.5, high: 3.0, vult: 2_500_000, tickLower: 265400, tickUpper: 272200, liquidity: 10_660_244_449_215_264_780 },
-  { range: "$3.00 -> $6.00", low: 3.0, high: 6.0, vult: 3_500_000, tickLower: 258400, tickUpper: 265400, liquidity: 20_464_709_160_515_616_440 },
-  { range: "$6.00 -> $10.00", low: 6.0, high: 10.0, vult: 5_000_000, tickLower: 253200, tickUpper: 258400, liquidity: 53_511_510_127_426_224_802 },
-  { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824 },
+  { range: "$0.10 -> $0.30", low: 0.1, high: 0.3, vult: 577_350, tickLower: 288400, tickUpper: 299400, liquidity: 430_526_825_642_029_061, nftId: 1189436 },
+  { range: "$0.30 -> $0.50", low: 0.3, high: 0.5, vult: 258_154, tickLower: 283200, tickUpper: 288400, liquidity: 616_519_629_281_411_321, nftId: 1189439 },
+  { range: "$0.50 -> $0.80", low: 0.5, high: 0.8, vult: 395_475, tickLower: 278600, tickUpper: 283200, liquidity: 1_364_882_096_369_430_843, nftId: 1189444 },
+  { range: "$0.80 -> $1.50", low: 0.8, high: 1.5, vult: 1_500_000, tickLower: 272200, tickUpper: 278600, liquidity: 4_888_501_405_611_995_071, nftId: 1189449 },
+  { range: "$1.50 -> $3.00", low: 1.5, high: 3.0, vult: 2_500_000, tickLower: 265400, tickUpper: 272200, liquidity: 10_660_244_449_215_264_780, nftId: 1189450 },
+  { range: "$3.00 -> $6.00", low: 3.0, high: 6.0, vult: 3_500_000, tickLower: 258400, tickUpper: 265400, liquidity: 20_464_709_160_515_616_440, nftId: 1189456 },
+  { range: "$6.00 -> $10.00", low: 6.0, high: 10.0, vult: 5_000_000, tickLower: 253200, tickUpper: 258400, liquidity: 53_511_510_127_426_224_802, nftId: 1189459 },
+  { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824, nftId: 1189462 },
 ];
 
 const SCENARIOS = [0.2, 0.3, 0.5, 1.0];
@@ -113,6 +114,10 @@ function formatNumber(value, maximumFractionDigits = 2) {
 function formatInputPrice(price) {
   const fixed = price >= 1 ? price.toFixed(4) : price.toFixed(6);
   return fixed.replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function uniswapPositionUrl(nftId) {
+  return `${UNISWAP_POSITION_BASE_URL}/${nftId}`;
 }
 
 function tokenIcon(symbol) {
@@ -306,14 +311,24 @@ function renderRangeViz(state) {
     const rangeVult = rangeAmounts.vult * state.share;
 
     return `
-      <div
+      <a
         class="range-row ${inRange ? "is-current" : ""}"
-        tabindex="0"
-        aria-label="${position.range}, current position ${formatNumber(rangeUsdc)} USDC and ${formatNumber(rangeVult)} VULT"
+        href="${uniswapPositionUrl(position.nftId)}"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}, current position ${formatNumber(rangeUsdc)} USDC and ${formatNumber(rangeVult)} VULT"
       >
         <span class="range-label">
           <strong>${position.range}</strong>
-          <small>${tokenAmount(position.vult, "vult", 0)} range</small>
+          <small class="range-meta">
+            <span>${tokenAmount(position.vult, "vult", 0)} range</span>
+            <span class="range-nft">
+              NFT #${position.nftId}
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </small>
         </span>
         <div class="range-bar">
           <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
@@ -322,7 +337,7 @@ function renderRangeViz(state) {
           <span class="range-asset range-asset-usdc ${rangeUsdc <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeUsdc, "usdc")}</span>
           <span class="range-asset range-asset-vult ${rangeVult <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeVult, "vult")}</span>
         </span>
-      </div>
+      </a>
     `;
   }).join("");
 }
