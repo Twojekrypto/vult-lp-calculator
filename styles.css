@@ -769,45 +769,15 @@ table {
 }
 
 .hero-total > strong {
-  background: linear-gradient(90deg, #ffffff, #d8fff5 48%, #9fb7ff);
+  background: linear-gradient(90deg, #48d6c1, #b7fff5);
   background-clip: text;
   -webkit-background-clip: text;
-  color: var(--text);
+  color: var(--teal);
   font-size: clamp(44px, 5vw, 66px);
   font-weight: 900;
   letter-spacing: 0;
   line-height: 0.95;
   -webkit-text-fill-color: transparent;
-}
-
-.hero-total-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.multi-pill,
-.pnl-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(72, 214, 193, 0.075);
-  color: var(--pos);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.pnl-pill {
-  background: rgba(121, 166, 232, 0.08);
-  color: #a9c5ef;
-}
-
-.pnl-pill.neg {
-  background: rgba(255, 92, 142, 0.1);
-  color: var(--neg);
 }
 
 .metrics {

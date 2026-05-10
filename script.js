@@ -234,9 +234,6 @@ function renderSetupPreview(state) {
 
 function renderSummary(state) {
   const current = rowForPrice(state.customPrice, state, "Custom", true);
-  const pnl = current.total - state.investmentAmount;
-  const pnlPct = state.investmentAmount > 0 ? (pnl / state.investmentAmount) * 100 : 0;
-  const pnlSign = pnl >= 0 ? "+" : "-";
   const usdcDollar = current.lpUsdc;
   const vultDollar = current.lpVult * state.customPrice;
   const lpDollar = usdcDollar + vultDollar;
@@ -245,15 +242,12 @@ function renderSummary(state) {
 
   $("activePrice").textContent = formatMoney(state.customPrice, 4);
   $("currentTotal").textContent = formatMoney(current.total);
-  $("currentMultiple").textContent = `${current.multiple.toFixed(2)}x multiple`;
   $("currentLpValue").textContent = formatMoney(current.lpValue);
   $("lpBreakdown").innerHTML = `${tokenAmount(current.lpUsdc, "usdc")}<span class="asset-separator">·</span>${tokenAmount(current.lpVult, "vult")}`;
   $("allocation").innerHTML = tokenAmount(state.allocation, "vult");
   $("share").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
   $("feeValue").textContent = formatMoney(current.feeValue);
   $("feeSplit").innerHTML = `${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">·</span>${tokenAmount(state.feeVult, "vult")}`;
-  $("pnlPill").textContent = `${pnlSign}${formatMoney(Math.abs(pnl))} (${pnlSign}${Math.abs(pnlPct).toFixed(1)}%)`;
-  $("pnlPill").classList.toggle("neg", pnl < 0);
   $("barUsdc").style.width = `${usdcPct.toFixed(2)}%`;
   $("barVult").style.width = `${vultPct.toFixed(2)}%`;
   $("barUsdc").setAttribute("aria-label", `USDC ${usdcPct.toFixed(1)}% of LP composition`);
