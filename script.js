@@ -28,7 +28,7 @@ const POSITIONS = [
   { range: "$10.00 -> infinity", low: 10.0, high: Number.POSITIVE_INFINITY, vult: 10_269_021, tickLower: 184200, tickUpper: 253200, liquidity: 33_701_465_351_401_975_824, nftId: 1189462, unclaimedFeeUsdc: 0, unclaimedFeeVult: 0 },
 ];
 
-const SCENARIOS = [0.3, 0.5, 0.8, 1.0, 3.0];
+const SCENARIOS = [0.3, 0.5, 0.8, 1.5, 3.0];
 const RANGE_LADDER_MARKS = [0.1, 0.3, 0.5, 0.8, 1.5, 3, 6, 10];
 
 const $ = (id) => document.getElementById(id);
@@ -260,62 +260,6 @@ function renderSummary(state) {
   $("barUsdc").setAttribute("aria-label", `USDC ${usdcPct.toFixed(1)}% of LP composition`);
   $("barVult").setAttribute("aria-label", `VULT ${vultPct.toFixed(1)}% of LP composition`);
   $("compositionRatio").innerHTML = `${compositionControl(usdcPct, current.lpUsdc, usdcDollar, "usdc")}${compositionControl(vultPct, current.lpVult, vultDollar, "vult")}`;
-}
-
-function renderCurrentRange(state) {
-  const activePosition = activePositionsAtPrice(state.customPrice)[0];
-  const container = $("currentRangeCard");
-
-  if (!activePosition) {
-    container.innerHTML = `
-      <div class="current-range-top">
-        <span>Current LP range</span>
-        <strong>No active investor range</strong>
-      </div>
-    `;
-    return;
-  }
-
-  const nextBoundary = Number.isFinite(activePosition.high) ? activePosition.high : null;
-  const distancePct = nextBoundary ? ((nextBoundary / state.customPrice) - 1) * 100 : null;
-  const distanceText = nextBoundary
-    ? `${distancePct >= 0 ? "+" : "-"}${formatPercent(Math.abs(distancePct))}% to next range`
-    : "Open-ended range";
-  const rangeDepthPct = (activePosition.vult / TOTAL_INVESTOR_VULT) * 100;
-
-  container.innerHTML = `
-    <div class="current-range-top">
-      <span>Current LP range</span>
-      <a
-        class="current-range-link"
-        href="${uniswapPositionUrl(activePosition.nftId)}"
-        data-nft-id="${activePosition.nftId}"
-        aria-label="Open Uniswap NFT ${activePosition.nftId} for ${activePosition.range}"
-      >
-        ${activePosition.range}
-        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </a>
-    </div>
-    <div class="current-range-grid">
-      <div>
-        <span>NFT</span>
-        <strong>#${activePosition.nftId}</strong>
-        <small>Uniswap position</small>
-      </div>
-      <div>
-        <span>Next boundary</span>
-        <strong>${nextBoundary ? formatMoney(nextBoundary, 2) : "Infinity"}</strong>
-        <small>${distanceText}</small>
-      </div>
-      <div>
-        <span>Range depth</span>
-        <strong>${tokenAmount(activePosition.vult, "vult", 0)}</strong>
-        <small>${rangeDepthPct.toFixed(2)}% of investor LP</small>
-      </div>
-    </div>
-  `;
 }
 
 function ladderPositionPercent(price) {
@@ -670,7 +614,6 @@ function update() {
   const state = getState();
   renderSetupPreview(state);
   renderSummary(state);
-  renderCurrentRange(state);
   renderTable(state);
   renderRangeLadder(state);
   renderRangeViz(state);
