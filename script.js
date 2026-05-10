@@ -243,16 +243,17 @@ function renderTable(state) {
   ];
 
   $("resultsBody").innerHTML = rows
-    .map((row) => {
-      const rangeRows = POSITIONS.map((position) => rangeRowForPrice(position, row, state)).join("");
-
-      return `
+    .map(
+      (row) => `
         <tr class="scenario-row ${row.isCustom ? "row-custom" : ""}">
-          <td data-label="Scenario / range">
+          <td data-label="VULT price">
             <div class="cell-price">
               <strong>${row.label}</strong>
               <small>${row.isCustom ? "selected input" : "scenario"}</small>
             </div>
+          </td>
+          <td data-label="Active LP range">
+            ${renderActiveRangeCell(row.price)}
           </td>
           <td data-label="LP assets">
             <div class="cell-stack">
@@ -273,94 +274,49 @@ function renderTable(state) {
             <small>${row.multiple.toFixed(2)}x</small>
           </td>
         </tr>
-        ${rangeRows}
-      `;
-    })
+      `,
+    )
     .join("");
 }
 
-function rangeSnapshot(position, price, share = 1) {
-  const amounts = amountsAtPrice(position, price);
-  const usdc = amounts.usdc * share;
-  const vult = amounts.vult * share;
-
-  return {
-    usdc,
-    vult,
-    value: usdc + vult * price,
-  };
+function activePositionsAtPrice(price) {
+  return POSITIONS.filter((position) => price >= position.low && price < position.high);
 }
 
-function rangeRowForPrice(position, row, state) {
-  const lp = rangeSnapshot(position, row.price, state.share);
-  const feeUsdc = (position.unclaimedFeeUsdc ?? 0) * state.share;
-  const feeVult = (position.unclaimedFeeVult ?? 0) * state.share;
-  const feeValue = feeUsdc + feeVult * row.price;
-  const total = lp.value + feeValue;
-  const inRange = row.price >= position.low && row.price < position.high;
+function renderActiveRangeCell(price) {
+  const activePositions = activePositionsAtPrice(price);
+
+  if (!activePositions.length) {
+    return `
+      <span class="active-range-empty">
+        No active investor range
+      </span>
+    `;
+  }
 
   return `
-    <tr
-      class="range-detail-row ${inRange ? "is-in-range" : ""}"
-      data-href="${uniswapPositionUrl(position.nftId)}"
-      tabindex="0"
-      role="link"
-      aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
-    >
-      <td data-label="Scenario / range">
-        <div class="cell-price range-cell-price">
-          <a
-            class="range-table-link"
-            href="${uniswapPositionUrl(position.nftId)}"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
-          >
-            <strong>${position.range}</strong>
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-          <small>NFT #${position.nftId} · ${row.label}</small>
-        </div>
-      </td>
-      <td data-label="LP assets">
-        <div class="cell-stack">
-          <strong>${tokenAmount(lp.usdc, "usdc")}</strong>
-          <small>${tokenAmount(lp.vult, "vult")}</small>
-        </div>
-      </td>
-      <td data-label="LP value"><span class="cell-value">${formatMoney(lp.value)}</span></td>
-      <td data-label="Fee assets">
-        <div class="cell-stack range-fee-stack">
-          <strong>${tokenAmount(feeUsdc, "usdc")}</strong>
-          <small>${tokenAmount(feeVult, "vult")}</small>
-        </div>
-      </td>
-      <td data-label="Fee value"><span class="cell-value">${formatMoney(feeValue)}</span></td>
-      <td data-label="Total" class="cell-total">
-        <strong>${formatMoney(total)}</strong>
-        <small>range</small>
-      </td>
-    </tr>
+    <div class="active-ranges">
+      ${activePositions
+        .map(
+          (position) => `
+            <a
+              class="active-range-link"
+              href="${uniswapPositionUrl(position.nftId)}"
+              aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
+            >
+              <span class="active-range-main">
+                <strong>${position.range}</strong>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <small>NFT #${position.nftId}</small>
+            </a>
+          `,
+        )
+        .join("")}
+    </div>
   `;
-}
-
-function bindScenarioRangeLinks() {
-  const resultsBody = $("resultsBody");
-
-  resultsBody.addEventListener("click", (event) => {
-    const row = event.target.closest(".range-detail-row");
-    if (!row || event.target.closest("a")) return;
-    window.location.assign(row.dataset.href);
-  });
-
-  resultsBody.addEventListener("keydown", (event) => {
-    const row = event.target.closest(".range-detail-row");
-    if (!row || !["Enter", " "].includes(event.key)) return;
-    event.preventDefault();
-    window.location.assign(row.dataset.href);
-  });
 }
 
 function renderRangeViz(state) {
@@ -586,6 +542,5 @@ $("resetButton").addEventListener("click", () => {
 });
 
 bindCompositionInteractions();
-bindScenarioRangeLinks();
 update();
 useActualPrice({ silent: true });
