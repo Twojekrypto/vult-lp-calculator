@@ -29,6 +29,7 @@ const POSITIONS = [
 ];
 
 const SCENARIOS = [0.3, 0.5, 0.8, 1.0, 3.0];
+const RANGE_LADDER_MARKS = [0.1, 0.3, 0.5, 0.8, 1.5, 3, 6, 10];
 
 const $ = (id) => document.getElementById(id);
 
@@ -111,6 +112,13 @@ function formatNumber(value, maximumFractionDigits = 2) {
   }).format(value);
 }
 
+function formatPercent(value, maximumFractionDigits = 1) {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits,
+  }).format(value);
+}
+
 function formatInputPrice(price) {
   const fixed = price >= 1 ? price.toFixed(4) : price.toFixed(6);
   return fixed.replace(/0+$/, "").replace(/\.$/, "");
@@ -184,10 +192,12 @@ function rowForPrice(price, state, label = null, isCustom = false) {
   const lpValue = lpUsdc + lpVult * price;
   const feeValue = state.feeUsdc + state.feeVult * price;
   const total = lpValue + feeValue;
+  const activePosition = activePositionsAtPrice(price)[0] ?? null;
 
   return {
     label: label ?? formatMoney(price, 2),
     price,
+    activePosition,
     lpUsdc,
     lpVult,
     lpValue,
@@ -198,6 +208,22 @@ function rowForPrice(price, state, label = null, isCustom = false) {
     multiple: state.investmentAmount > 0 ? total / state.investmentAmount : 0,
     isCustom,
   };
+}
+
+function renderScenarioDelta(row, baselineTotal) {
+  if (row.isCustom) {
+    return `<small class="scenario-delta is-base">Selected baseline</small>`;
+  }
+
+  const delta = row.total - baselineTotal;
+  const deltaPct = baselineTotal > 0 ? (delta / baselineTotal) * 100 : 0;
+  const sign = delta >= 0 ? "+" : "-";
+
+  return `
+    <small class="scenario-delta ${delta >= 0 ? "is-up" : "is-down"}">
+      ${sign}${formatMoney(Math.abs(delta))} · ${sign}${formatPercent(Math.abs(deltaPct))}%
+    </small>
+  `;
 }
 
 function renderSetupPreview(state) {
@@ -236,16 +262,101 @@ function renderSummary(state) {
   $("compositionRatio").innerHTML = `${compositionControl(usdcPct, current.lpUsdc, usdcDollar, "usdc")}${compositionControl(vultPct, current.lpVult, vultDollar, "vult")}`;
 }
 
+function renderCurrentRange(state) {
+  const activePosition = activePositionsAtPrice(state.customPrice)[0];
+  const container = $("currentRangeCard");
+
+  if (!activePosition) {
+    container.innerHTML = `
+      <div class="current-range-top">
+        <span>Current LP range</span>
+        <strong>No active investor range</strong>
+      </div>
+    `;
+    return;
+  }
+
+  const nextBoundary = Number.isFinite(activePosition.high) ? activePosition.high : null;
+  const distancePct = nextBoundary ? ((nextBoundary / state.customPrice) - 1) * 100 : null;
+  const distanceText = nextBoundary
+    ? `${distancePct >= 0 ? "+" : "-"}${formatPercent(Math.abs(distancePct))}% to next range`
+    : "Open-ended range";
+  const rangeDepthPct = (activePosition.vult / TOTAL_INVESTOR_VULT) * 100;
+
+  container.innerHTML = `
+    <div class="current-range-top">
+      <span>Current LP range</span>
+      <a
+        class="current-range-link"
+        href="${uniswapPositionUrl(activePosition.nftId)}"
+        data-nft-id="${activePosition.nftId}"
+        aria-label="Open Uniswap NFT ${activePosition.nftId} for ${activePosition.range}"
+      >
+        ${activePosition.range}
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+    </div>
+    <div class="current-range-grid">
+      <div>
+        <span>NFT</span>
+        <strong>#${activePosition.nftId}</strong>
+        <small>Uniswap position</small>
+      </div>
+      <div>
+        <span>Next boundary</span>
+        <strong>${nextBoundary ? formatMoney(nextBoundary, 2) : "Infinity"}</strong>
+        <small>${distanceText}</small>
+      </div>
+      <div>
+        <span>Range depth</span>
+        <strong>${tokenAmount(activePosition.vult, "vult", 0)}</strong>
+        <small>${rangeDepthPct.toFixed(2)}% of investor LP</small>
+      </div>
+    </div>
+  `;
+}
+
+function ladderPositionPercent(price) {
+  const min = RANGE_LADDER_MARKS[0];
+  const max = RANGE_LADDER_MARKS[RANGE_LADDER_MARKS.length - 1];
+  const clampedPrice = Math.min(Math.max(price, min), max);
+  const minLog = Math.log(min);
+  const maxLog = Math.log(max);
+  return ((Math.log(clampedPrice) - minLog) / (maxLog - minLog)) * 100;
+}
+
+function renderRangeLadder(state) {
+  const positionPct = ladderPositionPercent(state.customPrice);
+  const activePosition = activePositionsAtPrice(state.customPrice)[0];
+
+  $("rangeLadder").innerHTML = `
+    <div class="range-ladder-head">
+      <span>Price ladder</span>
+      <strong>${activePosition ? activePosition.range : "Outside investor LP"}</strong>
+    </div>
+    <div class="range-ladder-track" style="--marker-left: ${positionPct.toFixed(2)}%">
+      <span class="range-ladder-fill" aria-hidden="true"></span>
+      <span class="range-ladder-marker" aria-hidden="true"></span>
+    </div>
+    <div class="range-ladder-labels">
+      ${RANGE_LADDER_MARKS.map((price) => `<span>${formatMoney(price, 2)}</span>`).join("")}
+    </div>
+  `;
+}
+
 function renderTable(state) {
   const rows = [
     rowForPrice(state.customPrice, state, `${formatMoney(state.customPrice, 4)} custom`, true),
     ...SCENARIOS.map((price) => rowForPrice(price, state)),
   ];
+  const baselineTotal = rows[0]?.total ?? 0;
 
   $("resultsBody").innerHTML = rows
     .map(
       (row) => `
-        <tr class="scenario-row ${row.isCustom ? "row-custom" : ""}">
+        <tr class="scenario-row ${row.isCustom ? "row-custom" : ""}"${row.activePosition ? ` data-nft-id="${row.activePosition.nftId}"` : ""}>
           <td data-label="VULT price">
             <div class="cell-price">
               <strong>${row.label}</strong>
@@ -271,7 +382,8 @@ function renderTable(state) {
           <td data-label="Fee value"><span class="cell-value">${formatMoney(row.feeValue)}</span></td>
           <td data-label="Total" class="cell-total">
             <strong>${formatMoney(row.total)}</strong>
-            <small>${row.multiple.toFixed(2)}x</small>
+            <small class="scenario-multiple">${row.multiple.toFixed(2)}x</small>
+            ${renderScenarioDelta(row, baselineTotal)}
           </td>
         </tr>
       `,
@@ -302,6 +414,7 @@ function renderActiveRangeCell(price) {
             <a
               class="active-range-link"
               href="${uniswapPositionUrl(position.nftId)}"
+              data-nft-id="${position.nftId}"
               aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
             >
               <span class="active-range-main">
@@ -363,6 +476,7 @@ function renderRangeViz(state) {
         href="${uniswapPositionUrl(position.nftId)}"
         target="_blank"
         rel="noreferrer"
+        data-nft-id="${position.nftId}"
         aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}, full LP ${formatMoney(fullValue)}, active NFT fees ${formatMoney(unclaimedFeeValue)}"
       >
         <span class="range-label">
@@ -466,6 +580,49 @@ function bindCompositionInteractions() {
   });
 }
 
+function setNftPreview(nftId = null) {
+  const previewId = nftId ? String(nftId) : "";
+
+  document.querySelectorAll("[data-nft-id]").forEach((element) => {
+    element.classList.toggle("is-previewed", Boolean(previewId) && element.dataset.nftId === previewId);
+  });
+}
+
+function bindRangePreviewInteractions() {
+  const root = document.querySelector("main");
+  if (!root) return;
+
+  root.addEventListener("pointerover", (event) => {
+    const target = event.target.closest("[data-nft-id]");
+    if (target && root.contains(target)) {
+      setNftPreview(target.dataset.nftId);
+    }
+  });
+
+  root.addEventListener("pointerout", (event) => {
+    const previousTarget = event.target.closest("[data-nft-id]");
+    const nextTarget = event.relatedTarget?.closest?.("[data-nft-id]");
+
+    if (previousTarget && previousTarget.dataset.nftId !== nextTarget?.dataset.nftId) {
+      setNftPreview();
+    }
+  });
+
+  root.addEventListener("focusin", (event) => {
+    const target = event.target.closest("[data-nft-id]");
+    if (target && root.contains(target)) {
+      setNftPreview(target.dataset.nftId);
+    }
+  });
+
+  root.addEventListener("focusout", (event) => {
+    const nextTarget = event.relatedTarget?.closest?.("[data-nft-id]");
+    if (!nextTarget || !root.contains(nextTarget)) {
+      setNftPreview();
+    }
+  });
+}
+
 function pickBestPricePair(data) {
   const pairs = Array.isArray(data?.pairs) ? data.pairs : [];
   return pairs
@@ -513,7 +670,9 @@ function update() {
   const state = getState();
   renderSetupPreview(state);
   renderSummary(state);
+  renderCurrentRange(state);
   renderTable(state);
+  renderRangeLadder(state);
   renderRangeViz(state);
   renderActiveShortcut(state.customPrice);
 }
@@ -542,5 +701,6 @@ $("resetButton").addEventListener("click", () => {
 });
 
 bindCompositionInteractions();
+bindRangePreviewInteractions();
 update();
 useActualPrice({ silent: true });
