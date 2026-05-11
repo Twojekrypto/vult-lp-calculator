@@ -7,8 +7,8 @@
       name="description"
       content="Premium VULT investor LP calculator for estimating pro-rata Uniswap V3 position value and generated fee share."
     />
-    <meta name="theme-color" content="#0a1428" />
-    <title>VULT · LP Position Calculator</title>
+    <meta name="theme-color" content="#09090b" />
+    <title>VULT · Liquidity Pool Calculator</title>
     <link rel="icon" href="./assets/vultisig-logo.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260510-total-focus" />
+    <link rel="stylesheet" href="./styles.css?v=20260511-fee-model-source" />
   </head>
   <body>
     <div class="ambient-glow" aria-hidden="true">
@@ -26,53 +26,55 @@
 
     <div class="page">
       <header class="header" aria-label="VULT LP calculator header">
-        <a class="brand" href="https://vultisig.com" target="_blank" rel="noreferrer">
-          <img src="./assets/vultisig-logo.svg" alt="Vultisig logo" width="32" height="33" />
-          <span>Vultisig</span>
+        <a
+          class="dashboard-banner-link"
+          href="https://vultisig.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open Vultisig website"
+        >
+          <img
+            class="dashboard-banner-image"
+            src="./DASSBOARD.png"
+            alt="Vultisig Dashboard. Powered by TwojeKrypto."
+            width="1916"
+            height="821"
+            fetchpriority="high"
+            decoding="async"
+          />
         </a>
 
-        <nav class="header-meta" aria-label="On-chain references">
-          <a
-            class="chip"
-            href="https://etherscan.io/token/0xb788144DF611029C60b859DF47e79B7726C4DEBa"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span class="chip-label">Contract</span>
-            <span class="chip-value">0xb788...DEBa</span>
-            <svg class="chip-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-          <a
-            class="chip"
-            href="https://etherscan.io/address/0xa38682a0c4225132de450bb0f8ec545a0ade967d"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span class="chip-label">LP wallet</span>
-            <span class="chip-value">0xa386...967d</span>
-            <svg class="chip-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-        </nav>
       </header>
 
       <main>
-        <section class="hero" aria-labelledby="pageTitle">
-          <div class="hero-text">
-            <span class="eyebrow">$VULT · investor liquidity</span>
-            <h1 id="pageTitle">LP Position <span>Calculator</span></h1>
+        <section class="calculator-shell" aria-labelledby="pageTitle">
+          <div class="hero">
+            <div class="hero-text">
+              <h1 id="pageTitle">Liquidity Pool Calculator</h1>
+            </div>
           </div>
-        </section>
 
-        <section class="core" aria-label="VULT LP calculator">
+          <div class="read-guide" aria-label="How to read this calculator">
+            <div class="read-step">
+              <span>1</span>
+              <strong>Enter investment</strong>
+            </div>
+            <div class="read-step">
+              <span>2</span>
+              <strong>Choose VULT price</strong>
+            </div>
+            <div class="read-step">
+              <span>3</span>
+              <strong>Read LP + fees</strong>
+            </div>
+          </div>
+
+          <section class="core" aria-label="VULT LP calculator">
           <form id="calculator" class="card inputs" autocomplete="off" aria-label="Position inputs">
             <header class="card-head">
-              <div>
-                <span class="eyebrow">Inputs</span>
+              <div class="section-title">
                 <h2>Position setup</h2>
+                <span class="section-note">Inputs</span>
               </div>
               <button type="button" id="resetButton" class="btn-ghost">
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" width="14" height="14">
@@ -87,7 +89,7 @@
                 <span class="field-label">Investment amount</span>
                 <span class="input-wrap">
                   <span class="input-prefix">$</span>
-                  <input id="investmentAmount" type="number" min="0" step="100" value="1000" inputmode="decimal" />
+                  <input id="investmentAmount" type="text" value="1000" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" />
                 </span>
               </label>
 
@@ -95,7 +97,7 @@
                 <span class="field-label">VULT entry price</span>
                 <span class="input-wrap">
                   <span class="input-prefix">$</span>
-                  <input id="entryPrice" type="number" min="0.000001" step="0.01" value="0.10" inputmode="decimal" />
+                  <input id="entryPrice" type="text" value="0.10" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" />
                 </span>
               </label>
 
@@ -103,7 +105,7 @@
                 <span class="field-label">Selected VULT price</span>
                 <span class="input-wrap input-hero">
                   <span class="input-prefix">$</span>
-                  <input id="customPrice" type="number" min="0.000001" step="0.001" value="0.185916877469" inputmode="decimal" />
+                  <input id="customPrice" type="text" value="0.185916877469" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" />
                 </span>
               </label>
             </div>
@@ -115,8 +117,12 @@
                 <button type="button" class="preset" data-price="0.30">$0.30</button>
                 <button type="button" class="preset" data-price="0.50">$0.50</button>
                 <button type="button" class="preset" data-price="1.50">$1.50</button>
-                <button type="button" class="preset preset-live" id="actualPriceButton">
-                  <span>Actual price</span>
+                <button type="button" class="preset preset-live" id="actualPriceButton" aria-label="Use live VULT price">
+                  <span class="preset-live-main">
+                    <span class="token-icon token-vult" aria-hidden="true"></span>
+                    <strong id="actualPriceValue">$0.1859</strong>
+                  </span>
+                  <small>Live price</small>
                 </button>
               </div>
             </div>
@@ -133,7 +139,7 @@
                   <strong id="setupCapital">$0.00</strong>
                 </div>
                 <div>
-                  <span>Fee claim</span>
+                  <span>Total fee share</span>
                   <strong id="setupFees"></strong>
                 </div>
               </div>
@@ -157,16 +163,16 @@
 
           <aside class="card output" aria-label="Live position summary">
             <header class="card-head">
-              <div>
-                <span class="eyebrow">Live output</span>
+              <div class="section-title">
                 <h2>Position summary</h2>
+                <span class="section-note">Live output</span>
               </div>
               <a
                 id="dexscreenerLink"
                 class="price-pill"
                 href="https://dexscreener.com/ethereum/0x6df52cc6e2e6f6531e4ceb4b083cf49864a89020"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label="Open VULT chart on DEX Screener"
               >
                 <span class="token-icon token-vult price-token" aria-hidden="true"></span>
@@ -180,6 +186,7 @@
             <div class="hero-total">
               <span>Total position value</span>
               <strong id="currentTotal">$0.00</strong>
+              <small>LP position + historical fees + active NFT fees</small>
             </div>
 
             <div class="metrics">
@@ -189,7 +196,7 @@
                 <small id="lpBreakdown"></small>
               </div>
               <div class="metric">
-                <span class="metric-label"><span class="dot dot-gold"></span>Generated fees</span>
+                <span class="metric-label"><span class="dot dot-gold"></span>Total fees</span>
                 <strong id="feeValue">$0.00</strong>
                 <small id="feeSplit"></small>
               </div>
@@ -211,14 +218,15 @@
               <div id="compositionRatio" class="composition-breakdown" aria-label="LP composition percentages"></div>
             </div>
           </aside>
+          </section>
         </section>
 
         <section class="block" aria-labelledby="scenariosTitle">
           <div class="table-card">
             <header class="table-card-head">
-              <div>
-                <span class="eyebrow">Scenarios</span>
+              <div class="section-title">
                 <h2 id="scenariosTitle">LP value and fee split</h2>
+                <span class="section-note">Scenarios · fee sources separated</span>
               </div>
             </header>
 
@@ -227,21 +235,19 @@
                 <colgroup>
                   <col class="col-price" />
                   <col class="col-range" />
-                  <col class="col-assets" />
-                  <col class="col-value" />
-                  <col class="col-assets" />
-                  <col class="col-value" />
+                  <col class="col-position" />
+                  <col class="col-fees" />
+                  <col class="col-fees" />
                   <col class="col-total" />
                 </colgroup>
                 <thead>
                   <tr>
                     <th>VULT price</th>
                     <th>Active LP range</th>
-                    <th>LP assets</th>
-                    <th>LP value</th>
-                    <th>Fee assets</th>
-                    <th>Fee value</th>
-                    <th>Total</th>
+                    <th><span>LP position</span><small>Liquidity only</small></th>
+                    <th><span>Historical fees</span><small>Pool-level share</small></th>
+                    <th><span>Active NFT fees</span><small>Unclaimed share</small></th>
+                    <th><span>Total</span><small>LP + all fees</small></th>
                   </tr>
                 </thead>
                 <tbody id="resultsBody"></tbody>
@@ -253,83 +259,129 @@
         <section class="dual" aria-label="Liquidity details">
           <article class="card">
             <header class="card-head">
-              <div>
-                <span class="eyebrow">Liquidity map</span>
+              <div class="section-title">
                 <h3>Investor LP ranges</h3>
+                <span class="section-note">Liquidity map · rows are NFT-level</span>
               </div>
             </header>
-            <p class="card-desc">
-              Full NFT LP value, active NFT fee balance, and your pro-rata split across verified ranges.
-            </p>
-            <div id="rangeTotal" class="range-total" aria-label="Whole LP position including fees"></div>
             <div id="rangeViz" class="range-viz" aria-label="Visual liquidity map"></div>
           </article>
 
-          <article class="card">
+          <article class="card model-card">
             <header class="card-head">
-              <div>
-                <span class="eyebrow">Verified constants</span>
-                <h3>Fee and model table</h3>
+              <div class="section-title">
+                <h3>Fee model</h3>
+                <span class="section-note">Verified constants</span>
               </div>
             </header>
-            <ul class="constants">
-              <li>
-                <span>Historical investor fees</span>
-                <strong class="token-pair">
-                  <span class="token-amount token-amount-usdc" aria-label="89,214.93 USDC">
-                    <span class="token-number">89,214.93</span>
+            <div class="model-reference" aria-label="Verified fee model constants">
+              <section class="fee-overview" aria-label="Total fee pool used by calculator">
+                <div class="fee-overview-copy">
+                  <span class="model-label">Calculator fee input</span>
+                  <strong>Total investor fee pool</strong>
+                  <p>Historical fees plus current unclaimed active fees, split by investor share.</p>
+                </div>
+                <div class="fee-overview-assets">
+                  <strong class="fee-asset fee-asset-usdc">
+                    <span id="feeTotalUsdc" class="token-number">--</span>
                     <span class="token-icon token-usdc" aria-hidden="true"></span>
-                  </span>
-                  <em>+</em>
-                  <span class="token-amount token-amount-vult" aria-label="319,966.26 VULT">
-                    <span class="token-number">319,966.26</span>
+                  </strong>
+                  <strong class="fee-asset fee-asset-vult">
+                    <span id="feeTotalVult" class="token-number">--</span>
                     <span class="token-icon token-vult" aria-hidden="true"></span>
+                  </strong>
+                </div>
+              </section>
+
+              <section class="fee-table" aria-label="Investor fee source breakdown">
+                <div class="fee-line fee-line-head">
+                  <span>Source</span>
+                  <span>USDC</span>
+                  <span>VULT</span>
+                  <span>Applied as</span>
+                </div>
+                <div class="fee-line">
+                  <span class="fee-source">
+                    <strong>Historical investor fees</strong>
+                    <small>Pool-level fees; not assigned to a single NFT range.</small>
                   </span>
-                </strong>
-              </li>
-              <li>
-                <span>Unclaimed active fees</span>
-                <strong class="token-pair">
-                  <span class="token-amount token-amount-usdc" aria-label="9,569.50 USDC">
-                    <span class="token-number">9,569.50</span>
+                  <strong class="fee-asset fee-asset-usdc">
+                    <span id="feeHistoricalUsdc" class="token-number">--</span>
                     <span class="token-icon token-usdc" aria-hidden="true"></span>
-                  </span>
-                  <em>+</em>
-                  <span class="token-amount token-amount-vult" aria-label="50,097.98 VULT">
-                    <span class="token-number">50,097.98</span>
+                  </strong>
+                  <strong class="fee-asset fee-asset-vult">
+                    <span id="feeHistoricalVult" class="token-number">--</span>
                     <span class="token-icon token-vult" aria-hidden="true"></span>
+                  </strong>
+                  <span class="fee-status fee-status-history">Pro-rata pool</span>
+                </div>
+                <div class="fee-line">
+                  <span class="fee-source">
+                    <strong>Unclaimed active fees</strong>
+                    <small>Current unclaimed fee balance from the verified active NFT.</small>
                   </span>
-                </strong>
-              </li>
-              <li class="highlight">
-                <span>Total investor fee pool</span>
-                <strong class="token-pair">
-                  <span class="token-amount token-amount-usdc" aria-label="98,784.42 USDC">
-                    <span class="token-number">98,784.42</span>
+                  <strong class="fee-asset fee-asset-usdc">
+                    <span id="feeActiveUsdc" class="token-number">--</span>
                     <span class="token-icon token-usdc" aria-hidden="true"></span>
-                  </span>
-                  <em>+</em>
-                  <span class="token-amount token-amount-vult" aria-label="370,064.24 VULT">
-                    <span class="token-number">370,064.24</span>
+                  </strong>
+                  <strong class="fee-asset fee-asset-vult">
+                    <span id="feeActiveVult" class="token-number">--</span>
                     <span class="token-icon token-vult" aria-hidden="true"></span>
-                  </span>
-                </strong>
-              </li>
-              <li>
-                <span>Treasury LP</span>
-                <strong>Excluded from this calculation</strong>
-              </li>
-            </ul>
+                  </strong>
+                  <span class="fee-status fee-status-active">Active NFT</span>
+                </div>
+              </section>
+
+              <div class="model-reference-rail">
+                <section class="model-note-card" aria-label="Treasury LP exclusion">
+                  <span class="model-label">Treasury LP</span>
+                  <strong>Excluded</strong>
+                  <p>7.5M VULT treasury LP is not included in investor calculations.</p>
+                </section>
+
+                <section class="onchain-card" aria-label="On-chain references">
+                  <span class="model-label">On-chain references</span>
+                  <div class="onchain-links">
+                    <a
+                      class="onchain-link"
+                      href="https://etherscan.io/token/0xb788144DF611029C60b859DF47e79B7726C4DEBa"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span>Contract</span>
+                      <strong>0xb788...DEBa</strong>
+                      <svg class="chip-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+                    <a
+                      class="onchain-link"
+                      href="https://etherscan.io/address/0xa38682a0c4225132de450bb0f8ec545a0ade967d"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span>LP wallet</span>
+                      <strong>0xa386...967d</strong>
+                      <svg class="chip-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+                  </div>
+                </section>
+              </div>
+            </div>
           </article>
         </section>
       </main>
 
       <footer>
-        <span>Static GitHub Pages calculator.</span>
-        <span>Uniswap V3 math uses verified ticks and liquidity; treasury LP is not included.</span>
+        <div class="footer-copy">
+          <span>Static GitHub Pages calculator.</span>
+          <span>Uniswap V3 math uses verified ticks and liquidity; treasury LP is not included.</span>
+        </div>
       </footer>
     </div>
 
-    <script src="./script.js?v=20260510-total-focus"></script>
+    <script src="./script.js?v=20260511-fee-model-source"></script>
   </body>
 </html>

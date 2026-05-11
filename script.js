@@ -29,6 +29,7 @@ const POSITIONS = [
 ];
 
 const SCENARIOS = [0.3, 0.5, 0.8, 1.5, 3.0];
+const COUNT_UP_DURATION_MS = 900;
 
 const $ = (id) => document.getElementById(id);
 
@@ -40,6 +41,7 @@ const inputs = {
 
 const priceButtons = Array.from(document.querySelectorAll("[data-price]"));
 const actualPriceButton = $("actualPriceButton");
+const actualPriceValue = $("actualPriceValue");
 const dexscreenerLink = $("dexscreenerLink");
 
 const totalFeePool = {
@@ -47,8 +49,82 @@ const totalFeePool = {
   vult: FEE_POOL.historicalVult + FEE_POOL.unclaimedVult,
 };
 
+const historicalFeePool = {
+  usdc: FEE_POOL.historicalUsdc,
+  vult: FEE_POOL.historicalVult,
+};
+
+const activeFeePool = {
+  usdc: FEE_POOL.unclaimedUsdc,
+  vult: FEE_POOL.unclaimedVult,
+};
+
+const countUpAnimations = new WeakMap();
+let liveVultPrice = DEFAULTS.customPrice;
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+}
+
+function easeOutCubic(progress) {
+  return 1 - Math.pow(1 - progress, 3);
+}
+
+function numberFromText(text) {
+  const parsed = Number(String(text ?? "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function setCountedText(id, value, formatter, { animate = false, fromZero = false } = {}) {
+  const element = $(id);
+  if (!element) return;
+
+  const nextText = formatter(value);
+  const existingFrame = countUpAnimations.get(element);
+
+  if (existingFrame) {
+    cancelAnimationFrame(existingFrame);
+    countUpAnimations.delete(element);
+  }
+
+  if (!animate || prefersReducedMotion()) {
+    element.textContent = nextText;
+    return;
+  }
+
+  const startValue = fromZero ? 0 : numberFromText(element.textContent);
+  const startedAt = performance.now();
+
+  function tick(now) {
+    const progress = Math.min(1, (now - startedAt) / COUNT_UP_DURATION_MS);
+    const currentValue = startValue + (value - startValue) * easeOutCubic(progress);
+    element.textContent = formatter(currentValue);
+
+    if (progress < 1) {
+      countUpAnimations.set(element, requestAnimationFrame(tick));
+      return;
+    }
+
+    element.textContent = nextText;
+    countUpAnimations.delete(element);
+  }
+
+  element.textContent = formatter(startValue);
+  countUpAnimations.set(element, requestAnimationFrame(tick));
+}
+
+function renderActualPriceButton(price = liveVultPrice) {
+  if (!actualPriceValue) return;
+  actualPriceValue.textContent = formatMoney(price, 4);
+  actualPriceButton?.setAttribute("aria-label", `Use live VULT price ${formatMoney(price, 4)}`);
+}
+
 function safeNumber(value, fallback = 0) {
-  const next = Number(value);
+  const normalized = String(value ?? "")
+    .trim()
+    .replace(/\s/g, "")
+    .replace(",", ".");
+  const next = Number(normalized);
   return Number.isFinite(next) && next > 0 ? next : fallback;
 }
 
@@ -110,10 +186,10 @@ function formatNumber(value, maximumFractionDigits = 2) {
   }).format(value);
 }
 
-function formatPercent(value, maximumFractionDigits = 1) {
+function formatFeeModelAmount(value) {
   return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 
@@ -141,6 +217,33 @@ function tokenAmount(value, symbol, maximumFractionDigits = 2) {
       <span class="token-number">${formatted}</span>
       ${tokenIcon(symbol)}
     </span>
+  `;
+}
+
+function setFeeModelNumber(id, value, symbol) {
+  const element = $(id);
+  if (!element) return;
+
+  const formatted = formatFeeModelAmount(value);
+  element.textContent = formatted;
+  element.closest(".fee-asset")?.setAttribute("aria-label", `${formatted} ${symbol.toUpperCase()}`);
+}
+
+function renderFeeModel() {
+  setFeeModelNumber("feeTotalUsdc", totalFeePool.usdc, "usdc");
+  setFeeModelNumber("feeTotalVult", totalFeePool.vult, "vult");
+  setFeeModelNumber("feeHistoricalUsdc", historicalFeePool.usdc, "usdc");
+  setFeeModelNumber("feeHistoricalVult", historicalFeePool.vult, "vult");
+  setFeeModelNumber("feeActiveUsdc", activeFeePool.usdc, "usdc");
+  setFeeModelNumber("feeActiveVult", activeFeePool.vult, "vult");
+}
+
+function assetPair(usdc, vult) {
+  return `
+    <div class="asset-pair">
+      <span class="asset-pill asset-pill-usdc">${tokenAmount(usdc, "usdc")}</span>
+      <span class="asset-pill asset-pill-vult">${tokenAmount(vult, "vult")}</span>
+    </div>
   `;
 }
 
@@ -178,6 +281,10 @@ function getState() {
     customPrice,
     allocation,
     share,
+    historicalFeeUsdc: historicalFeePool.usdc * share,
+    historicalFeeVult: historicalFeePool.vult * share,
+    activeFeeUsdc: activeFeePool.usdc * share,
+    activeFeeVult: activeFeePool.vult * share,
     feeUsdc: totalFeePool.usdc * share,
     feeVult: totalFeePool.vult * share,
   };
@@ -188,6 +295,8 @@ function rowForPrice(price, state, label = null, isCustom = false) {
   const lpUsdc = lp.usdc * state.share;
   const lpVult = lp.vult * state.share;
   const lpValue = lpUsdc + lpVult * price;
+  const historicalFeeValue = state.historicalFeeUsdc + state.historicalFeeVult * price;
+  const activeFeeValue = state.activeFeeUsdc + state.activeFeeVult * price;
   const feeValue = state.feeUsdc + state.feeVult * price;
   const total = lpValue + feeValue;
   const activePosition = activePositionsAtPrice(price)[0] ?? null;
@@ -199,6 +308,12 @@ function rowForPrice(price, state, label = null, isCustom = false) {
     lpUsdc,
     lpVult,
     lpValue,
+    historicalFeeUsdc: state.historicalFeeUsdc,
+    historicalFeeVult: state.historicalFeeVult,
+    historicalFeeValue,
+    activeFeeUsdc: state.activeFeeUsdc,
+    activeFeeVult: state.activeFeeVult,
+    activeFeeValue,
     feeUsdc: state.feeUsdc,
     feeVult: state.feeVult,
     feeValue,
@@ -208,30 +323,14 @@ function rowForPrice(price, state, label = null, isCustom = false) {
   };
 }
 
-function renderScenarioDelta(row, baselineTotal) {
-  if (row.isCustom) {
-    return `<small class="scenario-delta is-base">Selected baseline</small>`;
-  }
-
-  const delta = row.total - baselineTotal;
-  const deltaPct = baselineTotal > 0 ? (delta / baselineTotal) * 100 : 0;
-  const sign = delta >= 0 ? "+" : "-";
-
-  return `
-    <small class="scenario-delta ${delta >= 0 ? "is-up" : "is-down"}">
-      ${sign}${formatMoney(Math.abs(delta))} · ${sign}${formatPercent(Math.abs(deltaPct))}%
-    </small>
-  `;
-}
-
-function renderSetupPreview(state) {
+function renderSetupPreview(state, animation = {}) {
   $("setupAllocation").innerHTML = tokenAmount(state.allocation, "vult", 2);
   $("setupShare").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
-  $("setupCapital").textContent = formatMoney(state.investmentAmount);
+  setCountedText("setupCapital", state.investmentAmount, (value) => formatMoney(value), animation);
   $("setupFees").innerHTML = `${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(state.feeVult, "vult")}`;
 }
 
-function renderSummary(state) {
+function renderSummary(state, animation = {}) {
   const current = rowForPrice(state.customPrice, state, "Custom", true);
   const usdcDollar = current.lpUsdc;
   const vultDollar = current.lpVult * state.customPrice;
@@ -239,13 +338,13 @@ function renderSummary(state) {
   const usdcPct = lpDollar > 0 ? (usdcDollar / lpDollar) * 100 : 0;
   const vultPct = lpDollar > 0 ? 100 - usdcPct : 0;
 
-  $("activePrice").textContent = formatMoney(state.customPrice, 4);
-  $("currentTotal").textContent = formatMoney(current.total);
-  $("currentLpValue").textContent = formatMoney(current.lpValue);
+  setCountedText("activePrice", state.customPrice, (value) => formatMoney(value, 4), animation);
+  setCountedText("currentTotal", current.total, (value) => formatMoney(value), animation);
+  setCountedText("currentLpValue", current.lpValue, (value) => formatMoney(value), animation);
   $("lpBreakdown").innerHTML = `${tokenAmount(current.lpUsdc, "usdc")}<span class="asset-separator">·</span>${tokenAmount(current.lpVult, "vult")}`;
   $("allocation").innerHTML = tokenAmount(state.allocation, "vult");
   $("share").textContent = `${(state.share * 100).toFixed(6)}% of investor LP`;
-  $("feeValue").textContent = formatMoney(current.feeValue);
+  setCountedText("feeValue", current.feeValue, (value) => formatMoney(value), animation);
   $("feeSplit").innerHTML = `${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">·</span>${tokenAmount(state.feeVult, "vult")}`;
   $("barUsdc").style.width = `${usdcPct.toFixed(2)}%`;
   $("barVult").style.width = `${vultPct.toFixed(2)}%`;
@@ -256,42 +355,48 @@ function renderSummary(state) {
 
 function renderTable(state) {
   const rows = [
-    rowForPrice(state.customPrice, state, `${formatMoney(state.customPrice, 4)} custom`, true),
+    rowForPrice(state.customPrice, state, formatMoney(state.customPrice, 4), true),
     ...SCENARIOS.map((price) => rowForPrice(price, state)),
   ];
-  const baselineTotal = rows[0]?.total ?? 0;
 
   $("resultsBody").innerHTML = rows
     .map(
       (row) => `
         <tr class="scenario-row ${row.isCustom ? "row-custom" : ""}"${row.activePosition ? ` data-nft-id="${row.activePosition.nftId}"` : ""}>
           <td data-label="VULT price">
-            <div class="cell-price">
-              <strong>${row.label}</strong>
-              <small>${row.isCustom ? "selected input" : "scenario"}</small>
+            <div class="cell-price ${row.isCustom ? "is-selected" : ""}">
+              <span class="price-marker">
+                ${tokenIcon("vult")}
+                <strong>${row.label}</strong>
+              </span>
             </div>
           </td>
           <td data-label="Active LP range">
             ${renderActiveRangeCell(row.price)}
           </td>
-          <td data-label="LP assets">
-            <div class="cell-stack">
-              <strong>${tokenAmount(row.lpUsdc, "usdc")}</strong>
-              <small>${tokenAmount(row.lpVult, "vult")}</small>
+          <td data-label="LP position (no fees)">
+            <div class="cell-lp-position">
+              <strong>${formatMoney(row.lpValue)}</strong>
+              ${assetPair(row.lpUsdc, row.lpVult)}
             </div>
           </td>
-          <td data-label="LP value"><span class="cell-value">${formatMoney(row.lpValue)}</span></td>
-          <td data-label="Fee assets">
-            <div class="cell-stack">
-              <strong>${tokenAmount(row.feeUsdc, "usdc")}</strong>
-              <small>${tokenAmount(row.feeVult, "vult")}</small>
+          <td data-label="Historical fees (pool-level)">
+            <div class="cell-fee-detail cell-fee-historical">
+              <strong>${formatMoney(row.historicalFeeValue)}</strong>
+              ${assetPair(row.historicalFeeUsdc, row.historicalFeeVult)}
             </div>
           </td>
-          <td data-label="Fee value"><span class="cell-value">${formatMoney(row.feeValue)}</span></td>
-          <td data-label="Total" class="cell-total">
-            <strong>${formatMoney(row.total)}</strong>
-            <small class="scenario-multiple">${row.multiple.toFixed(2)}x</small>
-            ${renderScenarioDelta(row, baselineTotal)}
+          <td data-label="Active NFT fees (unclaimed)">
+            <div class="cell-fee-detail cell-fee-active">
+              <strong>${formatMoney(row.activeFeeValue)}</strong>
+              ${assetPair(row.activeFeeUsdc, row.activeFeeVult)}
+            </div>
+          </td>
+          <td data-label="Total">
+            <div class="cell-total">
+              <strong>${formatMoney(row.total)}</strong>
+              <small class="scenario-multiple">${row.multiple.toFixed(2)}x</small>
+            </div>
           </td>
         </tr>
       `,
@@ -322,6 +427,8 @@ function renderActiveRangeCell(price) {
             <a
               class="active-range-link"
               href="${uniswapPositionUrl(position.nftId)}"
+              target="_blank"
+              rel="noopener noreferrer"
               data-nft-id="${position.nftId}"
               aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}"
             >
@@ -341,97 +448,86 @@ function renderActiveRangeCell(price) {
 }
 
 function renderRangeViz(state) {
-  const maxVult = Math.max(...POSITIONS.map((position) => position.vult));
   const price = state.customPrice;
-  const current = rowForPrice(price, state, "Custom", true);
-  const totalUsdc = current.lpUsdc + state.feeUsdc;
-  const totalVult = current.lpVult + state.feeVult;
 
-  $("rangeTotal").innerHTML = `
-    <div class="range-total-hero">
-      <span>Whole position with fees</span>
-      <strong>${formatMoney(current.total)}</strong>
-      <small>${tokenAmount(totalUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(totalVult, "vult")}</small>
-    </div>
-    <div class="range-total-grid">
-      <div>
-        <span>LP assets</span>
-        <strong>${formatMoney(current.lpValue)}</strong>
-        <small>${tokenAmount(current.lpUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(current.lpVult, "vult")}</small>
-      </div>
-      <div>
-        <span>Generated fees</span>
-        <strong>${formatMoney(current.feeValue)}</strong>
-        <small>${tokenAmount(state.feeUsdc, "usdc")}<span class="asset-separator">+</span>${tokenAmount(state.feeVult, "vult")}</small>
-      </div>
-    </div>
-  `;
-
-  $("rangeViz").innerHTML = POSITIONS.map((position) => {
+  const rows = POSITIONS.map((position) => {
     const inRange = price >= position.low && price < position.high;
-    const widthPct = (position.vult / maxVult) * 100;
     const rangeAmounts = amountsAtPrice(position, price);
     const rangeUsdc = rangeAmounts.usdc * state.share;
     const rangeVult = rangeAmounts.vult * state.share;
     const fullValue = rangeAmounts.usdc + rangeAmounts.vult * price;
+    const shareValue = rangeUsdc + rangeVult * price;
     const unclaimedFeeUsdc = position.unclaimedFeeUsdc ?? 0;
     const unclaimedFeeVult = position.unclaimedFeeVult ?? 0;
     const unclaimedFeeValue = unclaimedFeeUsdc + unclaimedFeeVult * price;
+    const activeFeeShareUsdc = unclaimedFeeUsdc * state.share;
+    const activeFeeShareVult = unclaimedFeeVult * state.share;
+    const activeFeeShareValue = activeFeeShareUsdc + activeFeeShareVult * price;
+    const hasActiveFees = unclaimedFeeValue > 0.000001;
+    const hasActiveFeeShare = activeFeeShareValue > 0.000001;
+    const isLiveActiveRange = inRange && Math.abs(price - liveVultPrice) < 0.000001;
+    const activeRangeLabel = isLiveActiveRange ? "Live active NFT" : "Active at selected price";
 
     return `
       <a
         class="range-row ${inRange ? "is-current" : ""}"
         href="${uniswapPositionUrl(position.nftId)}"
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         data-nft-id="${position.nftId}"
-        aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}, full LP ${formatMoney(fullValue)}, active NFT fees ${formatMoney(unclaimedFeeValue)}"
+        aria-label="Open Uniswap NFT ${position.nftId} for ${position.range}${inRange ? `, ${activeRangeLabel}` : ""}, NFT liquidity ${formatMoney(fullValue)}, active NFT fees ${formatMoney(unclaimedFeeValue)}, your liquidity share ${formatMoney(shareValue)}, your active fee share ${formatMoney(activeFeeShareValue)}"
       >
-        <span class="range-label">
-          <strong>${position.range}</strong>
-          <small class="range-meta">
-            <span>${tokenAmount(position.vult, "vult", 0)} range</span>
-            <span class="range-nft">
-              NFT #${position.nftId}
+        <div class="range-cell range-main" data-label="LP range">
+          <span class="range-range-card">
+            <span class="active-range-main">
+              <strong>${position.range}</strong>
               <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M6 3h7v7M13 3 5 11M11 13H3V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </span>
-          </small>
-        </span>
-        <div class="range-bar">
-          <div class="range-fill ${inRange ? "in-range" : ""}" style="width: ${widthPct.toFixed(1)}%"></div>
+            <small>NFT #${position.nftId}</small>
+            ${inRange ? `
+              <span class="range-live-badge ${isLiveActiveRange ? "is-live" : "is-selected"}">
+                ${tokenIcon("vult")}
+                <span>${activeRangeLabel}</span>
+              </span>
+            ` : ""}
+          </span>
         </div>
-        <span class="range-stat range-full">
-          <em>Full NFT LP</em>
+        <div class="range-cell range-depth" data-label="Range depth">
+          <span class="asset-pill asset-pill-vult">${tokenAmount(position.vult, "vult", 0)}</span>
+        </div>
+        <div class="range-cell range-stat range-full" data-label="NFT liquidity">
           <strong>${formatMoney(fullValue)}</strong>
-          <small>
-            ${tokenAmount(rangeAmounts.usdc, "usdc")}
-            <span class="asset-separator">+</span>
-            ${tokenAmount(rangeAmounts.vult, "vult")}
-          </small>
-        </span>
-        <span class="range-stat range-fees">
-          <em>Active NFT fees</em>
+          ${assetPair(rangeAmounts.usdc, rangeAmounts.vult)}
+        </div>
+        <div class="range-cell range-stat range-fees ${hasActiveFees ? "has-value" : "is-zero"}" data-label="Active NFT fees">
           <strong>${formatMoney(unclaimedFeeValue)}</strong>
-          <small>
-            ${tokenAmount(unclaimedFeeUsdc, "usdc")}
-            <span class="asset-separator">+</span>
-            ${tokenAmount(unclaimedFeeVult, "vult")}
-          </small>
-        </span>
-        <span class="range-stat range-assets">
-          <em>Your share</em>
-          <strong>${formatMoney(rangeUsdc + rangeVult * price)}</strong>
-          <small>
-            <span class="range-asset range-asset-usdc ${rangeUsdc <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeUsdc, "usdc")}</span>
-            <span class="asset-separator">+</span>
-            <span class="range-asset range-asset-vult ${rangeVult <= 0.000001 ? "is-zero" : ""}">${tokenAmount(rangeVult, "vult")}</span>
-          </small>
-        </span>
+          ${assetPair(unclaimedFeeUsdc, unclaimedFeeVult)}
+        </div>
+        <div class="range-cell range-stat range-assets" data-label="Your liquidity share">
+          <strong>${formatMoney(shareValue)}</strong>
+          ${assetPair(rangeUsdc, rangeVult)}
+        </div>
+        <div class="range-cell range-stat range-fee-share ${hasActiveFeeShare ? "has-value" : "is-zero"}" data-label="Your active fee share">
+          <strong>${formatMoney(activeFeeShareValue)}</strong>
+          ${assetPair(activeFeeShareUsdc, activeFeeShareVult)}
+        </div>
       </a>
     `;
   }).join("");
+
+  $("rangeViz").innerHTML = `
+    <div class="range-table-head" aria-hidden="true">
+      <span>LP range</span>
+      <span>Range depth</span>
+      <span>NFT liquidity<small>LP only</small></span>
+      <span>Active NFT fees<small>Unclaimed</small></span>
+      <span>Your liquidity share<small>No fees</small></span>
+      <span>Your active fee share<small>No historical</small></span>
+    </div>
+    ${rows}
+  `;
 }
 
 function renderActiveShortcut(price) {
@@ -440,6 +536,10 @@ function renderActiveShortcut(price) {
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+
+  const isLiveActive = Math.abs(price - liveVultPrice) < 0.000001;
+  actualPriceButton.classList.toggle("is-active", isLiveActive);
+  actualPriceButton.setAttribute("aria-pressed", String(isLiveActive));
 }
 
 function setCompositionHighlight(token = null) {
@@ -532,7 +632,7 @@ function pickBestPricePair(data) {
     .sort((a, b) => Number(b.liquidity?.usd ?? 0) - Number(a.liquidity?.usd ?? 0))[0];
 }
 
-async function useActualPrice({ silent = false } = {}) {
+async function useActualPrice({ silent = false, animate = false, fromZero = false } = {}) {
   actualPriceButton.classList.add("is-loading");
   actualPriceButton.disabled = true;
 
@@ -550,25 +650,30 @@ async function useActualPrice({ silent = false } = {}) {
       throw new Error("No valid Ethereum VULT price pair found");
     }
 
+    liveVultPrice = price;
+    renderActualPriceButton(liveVultPrice);
     inputs.customPrice.value = formatInputPrice(price);
     if (pair.url) {
       dexscreenerLink.href = pair.url;
     }
-    update();
+    update({ animate, fromZero });
+    return true;
   } catch (error) {
     if (!silent) {
       inputs.customPrice.focus();
     }
+    return false;
   } finally {
     actualPriceButton.classList.remove("is-loading");
     actualPriceButton.disabled = false;
   }
 }
 
-function update() {
+function update({ animate = false, fromZero = false } = {}) {
   const state = getState();
-  renderSetupPreview(state);
-  renderSummary(state);
+  const animation = { animate, fromZero };
+  renderSetupPreview(state, animation);
+  renderSummary(state, animation);
   renderTable(state);
   renderRangeViz(state);
   renderActiveShortcut(state.customPrice);
@@ -576,27 +681,42 @@ function update() {
 
 Object.values(inputs).forEach((input) => {
   input.addEventListener("input", update);
-  input.addEventListener("focus", () => input.select());
+  input.addEventListener("focus", () => {
+    try {
+      input.select();
+    } catch {
+      // Number inputs do not support text selection in every browser/runtime.
+    }
+  });
 });
 
 priceButtons.forEach((button) => {
   button.addEventListener("click", () => {
     inputs.customPrice.value = button.dataset.price;
-    update();
+    update({ animate: true });
   });
 });
 
-actualPriceButton.addEventListener("click", useActualPrice);
+actualPriceButton.addEventListener("click", () => useActualPrice({ animate: true }));
 
 $("resetButton").addEventListener("click", () => {
   inputs.investmentAmount.value = DEFAULTS.investmentAmount;
   inputs.entryPrice.value = DEFAULTS.entryPrice.toFixed(2);
   inputs.customPrice.value = DEFAULTS.customPrice;
   dexscreenerLink.href = DEXSCREENER_CHART_URL;
-  update();
+  update({ animate: true, fromZero: true });
 });
 
 bindCompositionInteractions();
 bindRangePreviewInteractions();
-update();
-useActualPrice({ silent: true });
+renderFeeModel();
+renderActualPriceButton();
+
+async function initialize() {
+  const loadedActualPrice = await useActualPrice({ silent: true, animate: true, fromZero: true });
+  if (!loadedActualPrice) {
+    update({ animate: true, fromZero: true });
+  }
+}
+
+initialize();
