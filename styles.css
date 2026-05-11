@@ -721,6 +721,14 @@ table {
   font-weight: 700;
 }
 
+.field-note {
+  margin-top: -2px;
+  color: rgba(183, 181, 173, 0.55);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+
 .input-wrap {
   display: flex;
   align-items: center;
@@ -739,6 +747,21 @@ table {
   border-color: var(--teal);
   background: var(--bg-3);
   box-shadow: 0 0 0 3px rgba(32, 240, 207, 0.08);
+}
+
+.input-locked {
+  border-color: rgba(183, 181, 173, 0.13);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.014), transparent),
+    rgba(255, 255, 255, 0.012);
+}
+
+.input-locked:focus-within {
+  border-color: rgba(183, 181, 173, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent),
+    rgba(255, 255, 255, 0.014);
+  box-shadow: none;
 }
 
 .input-prefix {
@@ -760,6 +783,30 @@ table {
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
+}
+
+.input-wrap input[readonly] {
+  color: rgba(244, 243, 239, 0.78);
+  cursor: default;
+}
+
+.lock-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 8px;
+  border: 1px solid rgba(32, 240, 207, 0.16);
+  border-radius: 999px;
+  background: rgba(32, 240, 207, 0.04);
+  color: rgba(159, 248, 236, 0.78);
+}
+
+.lock-badge svg {
+  width: 14px;
+  height: 14px;
 }
 
 .input-hero {

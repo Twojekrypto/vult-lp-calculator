@@ -270,7 +270,7 @@ function compositionControl(percent, amount, valueUsd, symbol) {
 
 function getState() {
   const investmentAmount = safeNumber(inputs.investmentAmount.value, DEFAULTS.investmentAmount);
-  const entryPrice = safeNumber(inputs.entryPrice.value, DEFAULTS.entryPrice);
+  const entryPrice = DEFAULTS.entryPrice;
   const customPrice = safeNumber(inputs.customPrice.value, DEFAULTS.customPrice);
   const allocation = investmentAmount / entryPrice;
   const share = allocation / TOTAL_INVESTOR_VULT;

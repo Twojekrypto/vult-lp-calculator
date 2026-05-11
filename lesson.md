@@ -8,3 +8,4 @@
 - Default page input is 1,000 USD at a 0.10 USD entry price, which equals 10,000 VULT and a 0.041667% investor LP share.
 - The main read path should stay obvious: enter investment, choose VULT price, then read total value as LP position plus historical and active fees.
 - Scenario and Investor LP range tables were hidden from the public UI to keep the page focused on the calculator, summary, composition, and Fee model.
+- Private entry price is fixed at $0.10 and should not be editable in the UI or calculator math.
