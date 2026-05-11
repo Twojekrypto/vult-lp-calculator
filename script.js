@@ -354,12 +354,15 @@ function renderSummary(state, animation = {}) {
 }
 
 function renderTable(state) {
+  const resultsBody = $("resultsBody");
+  if (!resultsBody) return;
+
   const rows = [
     rowForPrice(state.customPrice, state, formatMoney(state.customPrice, 4), true),
     ...SCENARIOS.map((price) => rowForPrice(price, state)),
   ];
 
-  $("resultsBody").innerHTML = rows
+  resultsBody.innerHTML = rows
     .map(
       (row) => `
         <tr class="scenario-row ${row.isCustom ? "row-custom" : ""}"${row.activePosition ? ` data-nft-id="${row.activePosition.nftId}"` : ""}>
@@ -448,6 +451,9 @@ function renderActiveRangeCell(price) {
 }
 
 function renderRangeViz(state) {
+  const rangeViz = $("rangeViz");
+  if (!rangeViz) return;
+
   const price = state.customPrice;
 
   const rows = POSITIONS.map((position) => {
@@ -517,7 +523,7 @@ function renderRangeViz(state) {
     `;
   }).join("");
 
-  $("rangeViz").innerHTML = `
+  rangeViz.innerHTML = `
     <div class="range-table-head" aria-hidden="true">
       <span>LP range</span>
       <span>Range depth</span>
